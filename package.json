@@ -6,9 +6,10 @@
   "description": "Conquest of Azeroth (realm 40) arena ladder — stats & armory links",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && vite build && bun run prerender",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
+    "prerender": "bun scripts/prerender.ts",
     "data:pull": "bun scripts/pull.ts",
     "data:build": "bun scripts/build-ladder.ts",
     "data:refresh": "bun scripts/refresh.ts"
