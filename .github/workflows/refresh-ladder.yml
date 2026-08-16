@@ -35,7 +35,7 @@ jobs:
 
       # Rolling day-over-day rating snapshots, not committed — see scripts/lib/history.utils.ts.
       - name: Restore ladder history cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: scripts/cache/history.json
           key: ladder-history-${{ github.run_id }}
