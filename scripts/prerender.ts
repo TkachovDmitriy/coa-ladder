@@ -91,6 +91,14 @@ function renderPage(template: string, bracket: Bracket, entries: LadderEntry[], 
     .replace(
       '<div id="root"></div>',
       `<div id="root"><main>
+      <style>
+        #root main { max-width: 960px; margin: 2rem auto; padding: 0 1rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+        #root h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.25rem; color: hsl(var(--foreground)); }
+        #root main > p { color: hsl(var(--muted-foreground)); font-size: 0.875rem; margin-bottom: 1rem; }
+        #root table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+        #root th, #root td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid hsl(var(--border)); color: hsl(var(--foreground)); }
+        #root th { color: hsl(var(--muted-foreground)); font-weight: 500; }
+      </style>
       <h1>${escapeHtml(title)}</h1>
       <p>Data updated ${new Date(generatedAt).toUTCString()}</p>
       ${renderTable(entries)}
