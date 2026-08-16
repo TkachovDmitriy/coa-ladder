@@ -6,11 +6,11 @@ import {
   useReactTable,
   type SortingState,
 } from "@tanstack/react-table"
-import { ArrowDown, ArrowUp, ChevronsUpDown, Crown, ExternalLink, Medal } from "lucide-react"
-import { useState } from "react"
+import { ArrowDown, ArrowUp, ChevronsUpDown, Crown, ExternalLink, Medal, ShieldQuestion } from "lucide-react"
 
 import { ClassIcon } from "@/shared/components/class-icon"
 import { classColor } from "@/shared/constants/classes.constants"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip"
 import { cn } from "@/shared/utils/utils"
 
 import type { LadderEntry } from "../../model/ladder.type"
@@ -32,7 +32,16 @@ const columns = [
   columnHelper.accessor("name", {
     header: "Player",
     enableSorting: false,
-    cell: (c) => <span className="font-medium">{c.getValue()}</span>,
+    cell: (c) => {
+      const name = c.getValue()
+      if (!name) return <span className="text-muted-foreground">—</span>
+      return (
+        <span className="inline-flex items-center gap-1.5">
+          <span className="font-medium">{name}</span>
+          {c.row.original.hasArmory ? null : <NoArmoryBadge />}
+        </span>
+      )
+    },
   }),
   columnHelper.accessor("className", {
     header: "Class",
@@ -91,16 +100,16 @@ const columns = [
 
 interface LadderTableProps {
   entries: LadderEntry[]
+  sorting: SortingState
+  onSortingChange: (sorting: SortingState) => void
 }
 
-export function LadderTable({ entries }: LadderTableProps) {
-  const [sorting, setSorting] = useState<SortingState>([{ id: "place", desc: false }])
-
+export function LadderTable({ entries, sorting, onSortingChange }: LadderTableProps) {
   const table = useReactTable({
     data: entries,
     columns,
     state: { sorting },
-    onSortingChange: setSorting,
+    onSortingChange: (updater) => onSortingChange(typeof updater === "function" ? updater(sorting) : updater),
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   })
@@ -197,4 +206,15 @@ function SortIcon({ dir }: { dir: false | "asc" | "desc" }) {
   if (dir === "asc") return <ArrowUp className={className} />
   if (dir === "desc") return <ArrowDown className={className} />
   return <ChevronsUpDown className={className} />
+}
+
+function NoArmoryBadge() {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <ShieldQuestion className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60" aria-label="No armory data" />
+      </TooltipTrigger>
+      <TooltipContent>No armory data — class/spec could not be resolved.</TooltipContent>
+    </Tooltip>
+  )
 }

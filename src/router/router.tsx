@@ -2,6 +2,7 @@ import { createRootRoute, createRoute, createRouter, redirect } from "@tanstack/
 
 import { LadderPage } from "@/pages/ladder-page"
 import { RootLayout } from "@/presentation/layouts/root-layout"
+import { DEFAULT_LADDER_SEARCH, validateLadderSearch } from "@/domains/ladder/utils/ladder-search.utils"
 import { DEFAULT_BRACKET, isBracket } from "@/shared/constants/brackets.constants"
 
 const rootRoute = createRootRoute({ component: RootLayout })
@@ -10,16 +11,17 @@ const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
   beforeLoad: () => {
-    throw redirect({ to: "/$bracket", params: { bracket: DEFAULT_BRACKET } })
+    throw redirect({ to: "/$bracket", params: { bracket: DEFAULT_BRACKET }, search: DEFAULT_LADDER_SEARCH })
   },
 })
 
 const bracketRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "$bracket",
+  validateSearch: validateLadderSearch,
   beforeLoad: ({ params }) => {
     if (!isBracket(params.bracket)) {
-      throw redirect({ to: "/$bracket", params: { bracket: DEFAULT_BRACKET } })
+      throw redirect({ to: "/$bracket", params: { bracket: DEFAULT_BRACKET }, search: DEFAULT_LADDER_SEARCH })
     }
   },
   component: LadderPage,

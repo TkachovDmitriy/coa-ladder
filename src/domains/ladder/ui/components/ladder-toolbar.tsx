@@ -7,8 +7,11 @@ interface LadderToolbarProps {
   search: string
   className: string | null
   classOptions: string[]
+  spec: string | null
+  specOptions: string[]
   onSearch: (value: string) => void
   onClassName: (value: string | null) => void
+  onSpec: (value: string | null) => void
   resultCount: number
 }
 
@@ -16,8 +19,11 @@ export function LadderToolbar({
   search,
   className,
   classOptions,
+  spec,
+  specOptions,
   onSearch,
   onClassName,
+  onSpec,
   resultCount,
 }: LadderToolbarProps) {
   return (
@@ -43,6 +49,21 @@ export function LadderToolbar({
         {classOptions.map((cls) => (
           <option key={cls} value={cls}>
             {cls}
+          </option>
+        ))}
+      </select>
+
+      <select
+        value={spec ?? ""}
+        onChange={(e) => onSpec(e.target.value || null)}
+        className={cn(
+          "h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+        )}
+      >
+        <option value="">All specs</option>
+        {specOptions.map((s) => (
+          <option key={s} value={s}>
+            {s}
           </option>
         ))}
       </select>

@@ -22,10 +22,12 @@ export function filterEntries(
   entries: readonly LadderEntry[],
   search: string,
   className: string | null,
+  spec: string | null,
 ): LadderEntry[] {
   const q = search.trim().toLowerCase()
   return entries.filter((e) => {
     if (className && e.className !== className) return false
+    if (spec && e.spec !== spec) return false
     if (q && !e.name.toLowerCase().includes(q)) return false
     return true
   })

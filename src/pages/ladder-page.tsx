@@ -1,7 +1,10 @@
 import { getRouteApi } from "@tanstack/react-router"
+import type { SortingState } from "@tanstack/react-table"
 import { useEffect } from "react"
 
 import { useLadder } from "@/domains/ladder/application/use-ladder.hook"
+import type { LadderSearchParams } from "@/domains/ladder/model/ladder-search.type"
+import { fromSortingState, toSortingState } from "@/domains/ladder/utils/ladder-search.utils"
 import { LadderTable, LadderToolbar, StatTiles } from "@/domains/ladder/ui"
 import { Stats } from "@/domains/stats/ui"
 import { Skeleton } from "@/shared/components/ui/skeleton"
@@ -12,10 +15,16 @@ const route = getRouteApi("/$bracket")
 /** Thin route entry: compose the ladder + stats domains for the active bracket. */
 export function LadderPage() {
   const { bracket } = route.useParams() as { bracket: Bracket }
-  const ladder = useLadder(bracket)
+  const search = route.useSearch()
+  const navigate = route.useNavigate()
+  const ladder = useLadder(bracket, search)
   const { state } = ladder
 
   useDocumentMeta(bracket, ladder.realmName)
+
+  const updateSearch = (patch: Partial<LadderSearchParams>) => {
+    void navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true })
+  }
 
   if (state.status === "idle" || state.status === "loading") return <LadderSkeleton />
   if (state.status === "error") return <ErrorState message={state.error} />
@@ -27,14 +36,21 @@ export function LadderPage() {
 
       <section className="space-y-3">
         <LadderToolbar
-          search={ladder.search}
-          className={ladder.className}
+          search={search.search}
+          className={search.class}
           classOptions={ladder.classOptions}
-          onSearch={ladder.setSearch}
-          onClassName={ladder.setClassName}
+          spec={search.spec}
+          specOptions={ladder.specOptions}
+          onSearch={(value) => updateSearch({ search: value })}
+          onClassName={(value) => updateSearch({ class: value })}
+          onSpec={(value) => updateSearch({ spec: value })}
           resultCount={ladder.visibleEntries.length}
         />
-        <LadderTable entries={ladder.visibleEntries} />
+        <LadderTable
+          entries={ladder.visibleEntries}
+          sorting={toSortingState(search)}
+          onSortingChange={(sorting: SortingState) => updateSearch(fromSortingState(sorting))}
+        />
       </section>
     </div>
   )
