@@ -46,6 +46,8 @@ export const LADDER_HEADERS: Record<string, string> = {
 export const SCRIPTS_DIR = join(import.meta.dir, "..")
 export const DATA_DIR = join(SCRIPTS_DIR, "data")
 export const CACHE_FILE = join(SCRIPTS_DIR, "cache", "armory.json")
+export const HISTORY_FILE = join(SCRIPTS_DIR, "cache", "history.json")
+export const MAX_HISTORY_SNAPSHOTS = 8
 export const OVERRIDES_FILE = join(SCRIPTS_DIR, "overrides.json")
 
 /** Final trimmed dataset served by the app (the only public file). */

@@ -17,6 +17,11 @@ import type { LadderEntry } from "../../model/ladder.type"
 import { armoryUrl, winRate } from "../../utils/ladder.utils"
 
 const percent = new Intl.NumberFormat("en-US", { style: "percent", maximumFractionDigits: 0 })
+const ratingChangePercent = new Intl.NumberFormat("en-US", {
+  style: "percent",
+  maximumFractionDigits: 1,
+  signDisplay: "always",
+})
 const columnHelper = createColumnHelper<LadderEntry>()
 
 const columns = [
@@ -57,7 +62,12 @@ const columns = [
   }),
   columnHelper.accessor("rating", {
     header: "Rating",
-    cell: (c) => <span className="font-semibold tabular">{c.getValue().toLocaleString()}</span>,
+    cell: (c) => (
+      <span className="inline-flex items-baseline gap-1.5">
+        <span className="font-semibold tabular">{c.getValue().toLocaleString()}</span>
+        <RatingChangeBadge value={c.row.original.ratingChange} />
+      </span>
+    ),
   }),
   columnHelper.display({
     id: "record",
@@ -206,6 +216,19 @@ function SortIcon({ dir }: { dir: false | "asc" | "desc" }) {
   if (dir === "asc") return <ArrowUp className={className} />
   if (dir === "desc") return <ArrowDown className={className} />
   return <ChevronsUpDown className={className} />
+}
+
+function RatingChangeBadge({ value }: { value: number | undefined }) {
+  if (value === undefined || value === 0) return null
+  const up = value > 0
+  const color = up ? "text-emerald-600 dark:text-emerald-500" : "text-red-600 dark:text-red-500"
+  const Icon = up ? ArrowUp : ArrowDown
+  return (
+    <span className={cn("inline-flex items-center gap-0.5 text-xs font-medium tabular", color)}>
+      <Icon className="h-3 w-3" strokeWidth={2.5} aria-hidden="true" />
+      {ratingChangePercent.format(value / 100)}
+    </span>
+  )
 }
 
 function NoArmoryBadge() {
