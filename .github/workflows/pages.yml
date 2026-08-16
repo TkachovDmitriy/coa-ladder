@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -41,17 +41,6 @@ jobs:
       # Runs outside a browser, so browser CORS policy does not apply here.
       - name: Refresh ladder data
         run: bun run data:refresh
-
-      - name: Commit refreshed data
-        run: |
-          if git diff --quiet -- public/ladder.json scripts/cache/armory.json; then
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/ladder.json scripts/cache/armory.json
-          git commit -m "chore: refresh ladder data"
-          git push
 
       - name: Build static site
         run: bun run build
