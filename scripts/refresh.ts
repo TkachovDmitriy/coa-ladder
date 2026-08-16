@@ -21,8 +21,8 @@ for (const realm of REALMS) {
   for (const bracket of BRACKETS) {
     console.log(`\n· realm ${realm.id} ${bracket.id}`)
     const input = join(DATA_DIR, rawFile(realm.id, bracket.id))
-    if (bypassCache) await $`bun ${script("enrich.ts")} ${input} --refresh`
-    else await $`bun ${script("enrich.ts")} ${input}`
+    if (bypassCache) await $`bun ${script("enrich.ts")} ${input} --realm ${realm.name} --refresh`
+    else await $`bun ${script("enrich.ts")} ${input} --realm ${realm.name}`
   }
 }
 

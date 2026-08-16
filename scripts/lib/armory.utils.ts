@@ -40,6 +40,14 @@ export async function loadOverrides(): Promise<Record<string, ManualOverride>> {
   return raw
 }
 
+/**
+ * Character names are not globally unique: the same name can exist on several
+ * realms. Keep those armory resolutions separate in the cache.
+ */
+export function cacheKey(name: string, realm: string): string {
+  return `${realm || "auto"}:${name}`
+}
+
 /** A cache hit is reusable only if written by this (spec-aware) version. */
 export function isFreshHit(hit: unknown): hit is CacheHit {
   return !!hit && typeof hit === "object" && "has_armory" in hit && "spec_status" in hit

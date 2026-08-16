@@ -2,9 +2,13 @@ import { fileURLToPath, URL } from "node:url"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 
-// Project page served under https://<user>.github.io/coa-ladder/
+// GitHub Pages project sites are served at /<repository>/, while local Vite
+// development is served from /. GitHub Actions supplies GITHUB_REPOSITORY.
+const repository = process.env.GITHUB_REPOSITORY?.split("/")[1]
+const base = process.env.GITHUB_ACTIONS && repository ? `/${repository}/` : "/"
+
 export default defineConfig({
-  base: "/coa-ladder/",
+  base,
   plugins: [react()],
   resolve: {
     alias: {

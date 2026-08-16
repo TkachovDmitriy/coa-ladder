@@ -6,7 +6,7 @@ import {
   useReactTable,
   type SortingState,
 } from "@tanstack/react-table"
-import { ArrowDown, ArrowUp, ChevronsUpDown, ExternalLink } from "lucide-react"
+import { ArrowDown, ArrowUp, ChevronsUpDown, Crown, ExternalLink, Medal } from "lucide-react"
 import { useState } from "react"
 
 import { ClassIcon } from "@/shared/components/class-icon"
@@ -27,7 +27,7 @@ const columns = [
   }),
   columnHelper.accessor("place", {
     header: "#",
-    cell: (c) => <span className="text-muted-foreground tabular">{c.getValue()}</span>,
+    cell: (c) => <RankBadge place={c.getValue()} />,
   }),
   columnHelper.accessor("name", {
     header: "Player",
@@ -136,7 +136,7 @@ export function LadderTable({ entries }: LadderTableProps) {
         </thead>
         <tbody>
           {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="border-b border-border/50 last:border-0 hover:bg-secondary/30">
+            <tr key={row.id} className={cn("border-b border-border/50 last:border-0", rankRowClass(row.original.place))}>
               {row.getVisibleCells().map((cell) => (
                 <td key={cell.id} className="px-3 py-2">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -155,6 +155,41 @@ export function LadderTable({ entries }: LadderTableProps) {
       </table>
     </div>
   )
+}
+
+function RankBadge({ place }: { place: number }) {
+  if (place === 1) {
+    return (
+      <span className="inline-flex min-w-9 items-center gap-1 rounded-md bg-primary/15 px-1.5 py-1 font-semibold text-primary tabular" aria-label="Rank 1, ladder leader">
+        <Crown className="h-4.5 w-4.5" strokeWidth={2.5} aria-hidden="true" />1
+      </span>
+    )
+  }
+
+  if (place <= 3) {
+    const color = place === 2 ? "text-slate-400" : "text-amber-700 dark:text-amber-600"
+    return (
+      <span className={cn("inline-flex min-w-10 items-center gap-1 rounded-md px-1 py-1 font-semibold tabular", color)} aria-label={`Rank ${place}`}>
+        <Medal className="h-4.5 w-4.5" strokeWidth={2.25} aria-hidden="true" />{place}
+      </span>
+    )
+  }
+
+  if (place <= 5) {
+    return (
+      <span className="inline-flex min-w-10 items-center gap-1 rounded-md bg-secondary px-1 py-1 font-semibold text-foreground tabular" aria-label={`Rank ${place}`}>
+        <Medal className="h-4.5 w-4.5 text-primary/70" strokeWidth={2.25} aria-hidden="true" />{place}
+      </span>
+    )
+  }
+
+  return <span className="text-muted-foreground tabular">{place}</span>
+}
+
+function rankRowClass(place: number) {
+  if (place === 1) return "bg-primary/[0.07] hover:bg-primary/[0.11]"
+  if (place <= 5) return "bg-secondary/20 hover:bg-secondary/40"
+  return "hover:bg-secondary/30"
 }
 
 function SortIcon({ dir }: { dir: false | "asc" | "desc" }) {

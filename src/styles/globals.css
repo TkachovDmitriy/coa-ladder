@@ -76,3 +76,13 @@
 .tabular {
   font-variant-numeric: tabular-nums;
 }
+
+/* TanStack Charts renders the tooltip in the chart host; map it to our card tokens. */
+.rating-chart-tooltip {
+  --ts-chart-tooltip-background: hsl(var(--card));
+  --ts-chart-tooltip-color: hsl(var(--card-foreground));
+  --ts-chart-tooltip-border: 1px solid hsl(var(--border));
+  --ts-chart-tooltip-border-radius: var(--radius);
+  --ts-chart-tooltip-shadow: 0 12px 28px hsl(264 35% 8% / 0.2);
+  --ts-chart-tooltip-font: 500 0.75rem/1.45 ui-sans-serif, system-ui, sans-serif;
+}

@@ -1,7 +1,7 @@
 import { useMemo } from "react"
 
 import type { LadderEntry } from "@/domains/ladder/model/ladder.type"
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card"
 
 import { aggregateByClass, toRatingPoints } from "../utils/class-stats.utils"
 import { ClassDistribution } from "./components/class-distribution"
@@ -31,6 +31,7 @@ export function Stats({ entries }: StatsProps) {
       <Card>
         <CardHeader>
           <CardTitle>Rating × win rate</CardTitle>
+          <CardDescription>Each point is a player. Colors match the class palette; hover a point for details.</CardDescription>
         </CardHeader>
         <CardContent>
           <RatingScatterChart points={points} />

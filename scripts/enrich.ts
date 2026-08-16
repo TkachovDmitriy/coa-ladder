@@ -19,6 +19,7 @@ import { DATA_DIR, rawFile, REALMS } from "./lib/pipeline.constants"
 import type { EnrichedEntry, RawEntry } from "./lib/pipeline.type"
 import {
   applyOverride,
+  cacheKey,
   isFreshHit,
   loadCache,
   loadOverrides,
@@ -71,13 +72,14 @@ let cacheHits = 0
 
 await pool(entries, concurrency, async (entry) => {
   const name = entry.name
-  let hit = cache[name]
+  const key = cacheKey(name, realmParam)
+  let hit = cache[key]
 
   if (hit && isFreshHit(hit) && !refresh) {
     cacheHits++
   } else {
     hit = await resolve(name, realmParam, withSpec)
-    cache[name] = hit
+    cache[key] = hit
   }
 
   applyOverride(hit, overrides[name])

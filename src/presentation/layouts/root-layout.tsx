@@ -43,7 +43,7 @@ export function RootLayout() {
       <footer className="border-t border-border/60">
         <div className="container py-4 text-xs text-muted-foreground">
           {generatedAt ? <>Data updated {new Date(generatedAt).toLocaleString()} · </> : null}
-          armory links open on ascensionlogs.gg
+          armory links open on ascensionlogs.gg · © 2026 Dmytro Tkachov. All rights reserved.
         </div>
       </footer>
     </div>
