@@ -1,7 +1,9 @@
 import { Search } from "lucide-react"
 
 import { Input } from "@/shared/components/ui/input"
-import { cn } from "@/shared/utils/utils"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select"
+
+const ALL_VALUE = "__all__"
 
 interface LadderToolbarProps {
   search: string
@@ -38,35 +40,33 @@ export function LadderToolbar({
         />
       </div>
 
-      <select
-        value={className ?? ""}
-        onChange={(e) => onClassName(e.target.value || null)}
-        className={cn(
-          "h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-        )}
-      >
-        <option value="">All classes</option>
-        {classOptions.map((cls) => (
-          <option key={cls} value={cls}>
-            {cls}
-          </option>
-        ))}
-      </select>
+      <Select value={className ?? ALL_VALUE} onValueChange={(v) => onClassName(v === ALL_VALUE ? null : v)}>
+        <SelectTrigger className="w-40">
+          <SelectValue placeholder="All classes" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={ALL_VALUE}>All classes</SelectItem>
+          {classOptions.map((cls) => (
+            <SelectItem key={cls} value={cls}>
+              {cls}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-      <select
-        value={spec ?? ""}
-        onChange={(e) => onSpec(e.target.value || null)}
-        className={cn(
-          "h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-        )}
-      >
-        <option value="">All specs</option>
-        {specOptions.map((s) => (
-          <option key={s} value={s}>
-            {s}
-          </option>
-        ))}
-      </select>
+      <Select value={spec ?? ALL_VALUE} onValueChange={(v) => onSpec(v === ALL_VALUE ? null : v)}>
+        <SelectTrigger className="w-40">
+          <SelectValue placeholder="All specs" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={ALL_VALUE}>All specs</SelectItem>
+          {specOptions.map((s) => (
+            <SelectItem key={s} value={s}>
+              {s}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
       <span className="ml-auto text-sm text-muted-foreground tabular">{resultCount} players</span>
     </div>
