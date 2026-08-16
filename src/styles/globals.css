@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Violet theme — light + dark. shadcn tokens as HSL custom properties.
+ * .dark is toggled on <html> by the ThemeProvider.
+ */
+:root {
+  --background: 270 40% 99%;
+  --foreground: 264 20% 12%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 264 20% 12%;
+
+  --primary: 262 72% 52%; /* #7c3aed violet-600 */
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 270 24% 95%;
+  --secondary-foreground: 264 20% 16%;
+
+  --muted: 270 24% 95%;
+  --muted-foreground: 264 8% 45%;
+
+  --accent: 270 30% 93%;
+  --accent-foreground: 264 20% 16%;
+
+  --border: 270 22% 89%;
+  --input: 270 22% 86%;
+  --ring: 262 72% 58%;
+
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 264 32% 6%; /* #0e0b16 violet-black */
+  --foreground: 0 0% 98%;
+
+  --card: 264 26% 9%;
+  --card-foreground: 0 0% 98%;
+
+  --primary: 258 90% 76%; /* #a78bfa violet-400 */
+  --primary-foreground: 264 40% 10%;
+
+  --secondary: 264 20% 15%;
+  --secondary-foreground: 0 0% 98%;
+
+  --muted: 264 20% 15%;
+  --muted-foreground: 264 12% 66%;
+
+  --accent: 264 22% 17%;
+  --accent-foreground: 0 0% 98%;
+
+  --border: 264 20% 18%;
+  --input: 264 20% 20%;
+  --ring: 258 90% 76%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    background-image: radial-gradient(
+      1200px 600px at 50% -10%,
+      hsl(262 70% 45% / 0.18),
+      transparent 70%
+    );
+    background-attachment: fixed;
+  }
+}
+
+/* Tabular numbers for columns that must align vertically. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

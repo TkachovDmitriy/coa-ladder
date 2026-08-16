@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CoA Arena Ladder — Realm 40</title>
+    <meta
+      name="description"
+      content="Conquest of Azeroth realm 40 arena ladder: 1v1 / 2v2 / 3v3 ratings, class distribution and armory links."
+    />
+    <script>
+      // Apply theme before first paint to avoid a flash.
+      (function () {
+        try {
+          var stored = localStorage.getItem("coa-theme")
+          var dark = stored ? stored === "dark" : !window.matchMedia("(prefers-color-scheme: light)").matches
+          if (dark) document.documentElement.classList.add("dark")
+        } catch (e) {}
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

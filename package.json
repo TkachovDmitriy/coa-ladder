@@ -1,0 +1,42 @@
+{
+  "name": "coa-ladder",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Conquest of Azeroth (realm 40) arena ladder — stats & armory links",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "data:pull": "bun scripts/pull.ts",
+    "data:build": "bun scripts/build-ladder.ts",
+    "data:refresh": "bun scripts/refresh.ts"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "^1.1.1",
+    "@radix-ui/react-tabs": "^1.1.2",
+    "@radix-ui/react-tooltip": "^1.1.6",
+    "@tanstack/charts": "^0.14.0",
+    "@tanstack/react-router": "^1.95.1",
+    "@tanstack/react-table": "^8.20.6",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.469.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^2.6.0",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "@types/react": "^19.0.4",
+    "@types/react-dom": "^19.0.2",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.7"
+  }
+}
