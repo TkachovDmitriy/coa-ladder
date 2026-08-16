@@ -3,6 +3,7 @@ import { useEffect, useMemo } from "react"
 import type { Bracket } from "@/shared/constants/brackets.constants"
 import { type RealmId, realmName } from "@/shared/constants/realms.constants"
 
+import type { LadderSearchParams } from "../model/ladder-search.type"
 import type { LadderEntry, LadderState } from "../model/ladder.type"
 import { filterEntries } from "../utils/ladder.utils"
 import { useLadderStore } from "./ladder.store"
@@ -14,25 +15,19 @@ interface UseLadderResult {
   setRealm: (realmId: RealmId) => void
   /** all entries for the bracket (drives stats + tiles). */
   bracketEntries: LadderEntry[]
-  /** entries after search/class filter (drives the table; TanStack Table sorts). */
+  /** entries after search/class/spec filter (drives the table; TanStack Table sorts). */
   visibleEntries: LadderEntry[]
   classOptions: string[]
+  specOptions: string[]
   generatedAt: string | null
-  search: string
-  className: string | null
-  setSearch: (search: string) => void
-  setClassName: (className: string | null) => void
 }
 
-/** Load the dataset once and derive the current realm + bracket's view. */
-export function useLadder(bracket: Bracket): UseLadderResult {
+/** Load the dataset once and derive the current realm + bracket's view, filtered by the URL search params. */
+export function useLadder(bracket: Bracket, search: LadderSearchParams): UseLadderResult {
   const state = useLadderStore((s) => s.data)
   const realmId = useLadderStore((s) => s.realmId)
-  const filters = useLadderStore((s) => s.filters)
   const load = useLadderStore((s) => s.load)
   const setRealm = useLadderStore((s) => s.setRealm)
-  const setSearch = useLadderStore((s) => s.setSearch)
-  const setClassName = useLadderStore((s) => s.setClassName)
 
   useEffect(() => {
     void load()
@@ -48,9 +43,15 @@ export function useLadder(bracket: Bracket): UseLadderResult {
     return [...set].sort()
   }, [bracketEntries])
 
+  const specOptions = useMemo(() => {
+    const set = new Set<string>()
+    for (const e of bracketEntries) if (e.spec) set.add(e.spec)
+    return [...set].sort()
+  }, [bracketEntries])
+
   const visibleEntries = useMemo(
-    () => filterEntries(bracketEntries, filters.search, filters.className),
-    [bracketEntries, filters],
+    () => filterEntries(bracketEntries, search.search, search.class, search.spec),
+    [bracketEntries, search.search, search.class, search.spec],
   )
 
   return {
@@ -61,10 +62,7 @@ export function useLadder(bracket: Bracket): UseLadderResult {
     bracketEntries,
     visibleEntries,
     classOptions,
+    specOptions,
     generatedAt,
-    search: filters.search,
-    className: filters.className,
-    setSearch,
-    setClassName,
   }
 }
