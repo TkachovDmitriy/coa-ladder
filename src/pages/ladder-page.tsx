@@ -7,6 +7,7 @@ import type { LadderSearchParams } from "@/domains/ladder/model/ladder-search.ty
 import { fromSortingState, toSortingState } from "@/domains/ladder/utils/ladder-search.utils"
 import { LadderTable, LadderToolbar, StatTiles } from "@/domains/ladder/ui"
 import { Stats } from "@/domains/stats/ui"
+import { Card, CardContent, CardHeader } from "@/shared/components/ui/card"
 import { Skeleton } from "@/shared/components/ui/skeleton"
 import type { Bracket } from "@/shared/constants/brackets.constants"
 
@@ -69,16 +70,69 @@ function useDocumentMeta(bracket: Bracket, realmName: string) {
   }, [bracket, realmName])
 }
 
+/**
+ * Mirrors StatTiles/Stats/LadderToolbar's real card/grid structure (not just
+ * a flat block) so its height at each breakpoint approximates the real
+ * content — the fetched data replaces this in place, and CLS is driven by
+ * the height delta between the two, not by the table below (nothing in the
+ * flow depends on the table's height but the footer).
+ */
 function LadderSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {Array.from({ length: 4 }, (_, i) => (
-          <Skeleton key={i} className="h-20" />
-        ))}
+      <div className="space-y-3">
+        <Card className="border-primary/40 bg-primary/[0.06]">
+          <CardContent className="flex items-center gap-3 p-4 sm:gap-5 sm:p-5">
+            <Skeleton className="h-16 w-16 shrink-0 rounded-lg" />
+            <div className="min-w-0 flex-1 space-y-2">
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-7 w-40" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+            <Skeleton className="hidden h-10 w-16 shrink-0 sm:block" />
+          </CardContent>
+        </Card>
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+          {Array.from({ length: 3 }, (_, i) => (
+            <Card key={i}>
+              <CardContent className="space-y-2 p-4">
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-6 w-16" />
+                <Skeleton className="h-3 w-14" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
-      <Skeleton className="h-72" />
-      <Skeleton className="h-96" />
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-5 w-36" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-[300px] w-full" />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="space-y-2">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-4 w-64" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-[300px] w-full" />
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <Skeleton className="h-9 w-56" />
+          <Skeleton className="h-9 w-32" />
+          <Skeleton className="h-9 w-32" />
+        </div>
+        <Skeleton className="h-[480px] w-full rounded-lg" />
+      </div>
     </div>
   )
 }
