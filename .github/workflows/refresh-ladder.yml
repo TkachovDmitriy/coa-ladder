@@ -1,8 +1,9 @@
-name: Deploy GitHub Pages
+name: Refresh ladder data and deploy
 
 on:
-  push:
-    branches: [main]
+  schedule:
+    # Daily at 00:00 UTC.
+    - cron: "0 0 * * *"
   workflow_dispatch:
 
 permissions:
@@ -15,7 +16,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  refresh-and-deploy:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -31,6 +32,10 @@ jobs:
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
+
+      # Runs outside a browser, so browser CORS policy does not apply here.
+      - name: Refresh ladder data
+        run: bun run data:refresh
 
       - name: Build static site
         run: bun run build
