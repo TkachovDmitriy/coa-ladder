@@ -1,4 +1,5 @@
 import { getRouteApi } from "@tanstack/react-router"
+import { useEffect } from "react"
 
 import { useLadder } from "@/domains/ladder/application/use-ladder.hook"
 import { LadderTable, LadderToolbar, StatTiles } from "@/domains/ladder/ui"
@@ -13,6 +14,8 @@ export function LadderPage() {
   const { bracket } = route.useParams() as { bracket: Bracket }
   const ladder = useLadder(bracket)
   const { state } = ladder
+
+  useDocumentMeta(bracket, ladder.realmName)
 
   if (state.status === "idle" || state.status === "loading") return <LadderSkeleton />
   if (state.status === "error") return <ErrorState message={state.error} />
@@ -35,6 +38,19 @@ export function LadderPage() {
       </section>
     </div>
   )
+}
+
+/** Keep the tab title/description in sync with the active bracket for SPA navigation. */
+function useDocumentMeta(bracket: Bracket, realmName: string) {
+  useEffect(() => {
+    document.title = `CoA Arena ${bracket} Ladder — ${realmName} (Realm 40)`
+
+    const description = document.querySelector('meta[name="description"]')
+    description?.setAttribute(
+      "content",
+      `Live ${bracket} arena ladder for Conquest of Azeroth realm 40 (${realmName}): player ratings, class distribution and armory links.`,
+    )
+  }, [bracket, realmName])
 }
 
 function LadderSkeleton() {
