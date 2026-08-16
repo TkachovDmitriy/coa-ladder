@@ -92,8 +92,8 @@ function LadderSkeleton() {
             <Skeleton className="hidden h-10 w-16 shrink-0 sm:block" />
           </CardContent>
         </Card>
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-          {Array.from({ length: 3 }, (_, i) => (
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {Array.from({ length: 4 }, (_, i) => (
             <Card key={i}>
               <CardContent className="space-y-2 p-4">
                 <Skeleton className="h-3 w-20" />
@@ -105,25 +105,15 @@ function LadderSkeleton() {
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-5 w-36" />
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="h-[300px] w-full" />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="space-y-2">
-            <Skeleton className="h-5 w-32" />
-            <Skeleton className="h-4 w-64" />
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="h-[300px] w-full" />
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 space-y-0">
+          <Skeleton className="h-5 w-36" />
+          <Skeleton className="h-9 w-64" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-[300px] w-full" />
+        </CardContent>
+      </Card>
 
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">

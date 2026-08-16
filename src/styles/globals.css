@@ -7,6 +7,8 @@
  * .dark is toggled on <html> by the ThemeProvider.
  */
 :root {
+  color-scheme: light;
+
   --background: 270 40% 99%;
   --foreground: 264 20% 12%;
 
@@ -33,6 +35,8 @@
 }
 
 .dark {
+  color-scheme: dark;
+
   --background: 264 32% 6%; /* #0e0b16 violet-black */
   --foreground: 0 0% 98%;
 

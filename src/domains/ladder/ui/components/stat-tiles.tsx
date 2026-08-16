@@ -20,8 +20,9 @@ export function StatTiles({ entries }: StatTilesProps) {
   return (
     <div className="space-y-3">
       <TopPlayer entry={topEntry} />
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-        <Tile label="Avg rating" value={avgRating.toLocaleString()} sub={`${total} players`} />
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Tile label="Players" value={total.toLocaleString()} sub="on the ladder" />
+        <Tile label="Avg rating" value={avgRating.toLocaleString()} />
         <Tile label="Armory resolved" value={`${resolved}/${total}`} sub="class known" />
         <Tile
           label="Dominant class"
@@ -30,7 +31,6 @@ export function StatTiles({ entries }: StatTilesProps) {
           accent={dominantClass ? classColor(dominantClass) : undefined}
           iconSize={32}
           valueClassName="truncate"
-          className="col-span-2 lg:col-span-1"
         />
       </div>
     </div>
