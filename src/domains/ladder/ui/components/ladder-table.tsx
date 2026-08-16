@@ -179,7 +179,7 @@ export function LadderTable({ entries, sorting, onSortingChange }: LadderTablePr
 function RankBadge({ place }: { place: number }) {
   if (place === 1) {
     return (
-      <span className="inline-flex min-w-9 items-center gap-1 rounded-md bg-primary/15 px-1.5 py-1 font-semibold text-primary tabular" aria-label="Rank 1, ladder leader">
+      <span className="inline-flex min-w-9 items-center gap-1 rounded-md bg-amber-500/15 px-1.5 py-1 font-semibold text-amber-500 tabular dark:text-amber-400" aria-label="Rank 1, ladder leader">
         <Crown className="h-4.5 w-4.5" strokeWidth={2.5} aria-hidden="true" />1
       </span>
     )
@@ -206,7 +206,7 @@ function RankBadge({ place }: { place: number }) {
 }
 
 function rankRowClass(place: number) {
-  if (place === 1) return "bg-primary/[0.07] hover:bg-primary/[0.11]"
+  if (place === 1) return "bg-amber-500/[0.07] hover:bg-amber-500/[0.11]"
   if (place <= 5) return "bg-secondary/20 hover:bg-secondary/40"
   return "hover:bg-secondary/30"
 }
