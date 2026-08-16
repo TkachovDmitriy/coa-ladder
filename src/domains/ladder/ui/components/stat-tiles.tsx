@@ -42,7 +42,7 @@ function TopPlayer({ entry }: { entry: LadderEntry | null }) {
 
   return (
     <Card
-      className="relative overflow-hidden border-primary/40 bg-primary/[0.06] shadow-[0_12px_30px_hsl(var(--primary)/0.14)]"
+      className="relative overflow-hidden border-amber-500/40 bg-amber-500/[0.06] shadow-[0_12px_30px_rgba(245,158,11,0.14)]"
       style={{ borderColor: `${accent}88` }}
     >
       <div
@@ -53,7 +53,7 @@ function TopPlayer({ entry }: { entry: LadderEntry | null }) {
         <ClassIcon name={entry?.className ?? null} size={64} className="rounded-lg" />
         <div className="min-w-0 flex-1">
           <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            <Trophy className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+            <Trophy className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400" aria-hidden="true" />
             Top rating
           </p>
           <p className="mt-1 flex min-w-0 items-center gap-2 text-2xl font-bold leading-tight sm:text-3xl" style={{ color: accent }}>
@@ -61,7 +61,7 @@ function TopPlayer({ entry }: { entry: LadderEntry | null }) {
             <span className="truncate">{entry?.name ?? "—"}</span>
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
-            <span className="font-semibold text-primary">#1</span>
+            <span className="font-semibold text-amber-500 dark:text-amber-400">#1</span>
             {entry?.className ? ` · ${entry.className}${entry.spec ? ` — ${entry.spec}` : ""}` : ""}
           </p>
         </div>
