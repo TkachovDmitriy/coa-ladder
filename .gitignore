@@ -5,3 +5,4 @@ dist/
 
 scripts/notes/
 scripts/data/
+scripts/cache/history.json

@@ -11,6 +11,8 @@ export interface LadderEntry {
   spec: string | null
   armoryRealm: string | null
   hasArmory: boolean
+  /** % change vs. the last earlier-day snapshot; absent if there's no prior data point. */
+  ratingChange?: number
 }
 
 /** One realm's ladders, keyed by bracket. */

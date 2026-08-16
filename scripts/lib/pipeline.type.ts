@@ -67,6 +67,25 @@ export interface LadderEntry {
   spec: string | null
   armoryRealm: string | null
   hasArmory: boolean
+  /** % change vs. the last earlier-day snapshot; absent if there's no prior data point. */
+  ratingChange?: number
+}
+
+/** One player's tracked stats at snapshot time. */
+export interface HistoryPoint {
+  rating: number
+  place: number
+}
+
+/** One daily ladder snapshot: realm id (stringified) -> bracket -> player name -> point. */
+export interface HistorySnapshot {
+  capturedAt: string
+  realms: Record<string, Record<Bracket, Record<string, HistoryPoint>>>
+}
+
+/** Rolling window of daily snapshots, used to compute ratingChange. */
+export interface HistoryFile {
+  snapshots: HistorySnapshot[]
 }
 
 /** One realm's ladders. */

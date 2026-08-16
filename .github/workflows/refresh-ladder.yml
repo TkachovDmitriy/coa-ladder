@@ -33,6 +33,15 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      # Rolling day-over-day rating snapshots, not committed — see scripts/lib/history.utils.ts.
+      - name: Restore ladder history cache
+        uses: actions/cache@v4
+        with:
+          path: scripts/cache/history.json
+          key: ladder-history-${{ github.run_id }}
+          restore-keys: |
+            ladder-history-
+
       # Runs outside a browser, so browser CORS policy does not apply here.
       - name: Refresh ladder data
         run: bun run data:refresh
