@@ -2,8 +2,9 @@ name: Refresh ladder data and deploy
 
 on:
   schedule:
-    # Daily at 00:00 UTC.
+    # Twice daily, 00:00 and 12:00 UTC.
     - cron: "0 0 * * *"
+    - cron: "0 12 * * *"
   workflow_dispatch:
 
 permissions:
