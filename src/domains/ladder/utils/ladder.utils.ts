@@ -10,12 +10,12 @@ export function winRate(entry: LadderEntry): number {
   return total === 0 ? 0 : entry.wins / total
 }
 
-/** Armory page by name + realm; fall back to the name-only page when unknown. */
-export function armoryUrl(entry: Pick<LadderEntry, "armoryRealm" | "name">): string {
+/** Armory page by name + realm; fall back to the ladder's own realm id when the armory realm is unknown. */
+export function armoryUrl(entry: Pick<LadderEntry, "armoryRealm" | "name">, realmId: number): string {
   if (entry.armoryRealm) {
     return `${ARMORY_BASE}/${encodeURIComponent(entry.name)}/${encodeURIComponent(entry.armoryRealm)}`
   }
-  return `${ARMORY_PROFILE_BASE}/${encodeURIComponent(entry.name)}`
+  return `${ARMORY_PROFILE_BASE}/${realmId}/${encodeURIComponent(entry.name)}`
 }
 
 export function filterEntries(

@@ -6,10 +6,12 @@ import {
   useReactTable,
   type SortingState,
 } from "@tanstack/react-table"
-import { ArrowDown, ArrowUp, ChevronsUpDown, Crown, ExternalLink, Medal, ShieldQuestion } from "lucide-react"
+import { useMemo } from "react"
+import { ArrowDown, ArrowUp, ChevronsUpDown, Crown, Medal, ShieldQuestion, Swords } from "lucide-react"
 
 import { ClassIcon } from "@/shared/components/class-icon"
 import { classColor } from "@/shared/constants/classes.constants"
+import { Button } from "@/shared/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip"
 import { cn } from "@/shared/utils/utils"
 
@@ -24,97 +26,121 @@ const ratingChangePercent = new Intl.NumberFormat("en-US", {
 })
 const columnHelper = createColumnHelper<LadderEntry>()
 
-const columns = [
-  columnHelper.display({
-    id: "classIcon",
-    header: () => <span className="sr-only">Class icon</span>,
-    cell: ({ row }) => <ClassIcon name={row.original.className} size={44} />,
-  }),
-  columnHelper.accessor("place", {
-    header: "#",
-    cell: (c) => <RankBadge place={c.getValue()} />,
-  }),
-  columnHelper.accessor("name", {
-    header: "Player",
-    enableSorting: false,
-    cell: (c) => {
-      const name = c.getValue()
-      if (!name) return <span className="text-muted-foreground">—</span>
-      return (
-        <span className="inline-flex items-center gap-1.5">
-          <span className="font-medium">{name}</span>
-          {c.row.original.hasArmory ? null : <NoArmoryBadge />}
+function buildColumns(realmId: number) {
+  return [
+    columnHelper.display({
+      id: "classIcon",
+      header: () => <span className="sr-only">Class icon</span>,
+      cell: ({ row }) => <ClassIcon name={row.original.className} size={44} />,
+    }),
+    columnHelper.accessor("place", {
+      header: "#",
+      cell: (c) => <RankBadge place={c.getValue()} />,
+    }),
+    columnHelper.accessor("name", {
+      header: "Player",
+      enableSorting: false,
+      cell: (c) => {
+        const name = c.getValue()
+        if (!name) return <span className="text-muted-foreground">—</span>
+        return (
+          <span className="inline-flex items-center gap-1.5">
+            <span className="font-medium">{name}</span>
+            {c.row.original.hasArmory ? null : <NoArmoryBadge />}
+          </span>
+        )
+      },
+    }),
+    columnHelper.accessor("className", {
+      header: "Class",
+      cell: (c) => {
+        const name = c.getValue()
+        if (!name) return <span className="text-muted-foreground">—</span>
+        return (
+          <span className="font-medium" style={{ color: classColor(name) }}>
+            {name}
+          </span>
+        )
+      },
+    }),
+    columnHelper.accessor("rating", {
+      header: "Rating",
+      cell: (c) => (
+        <span className="inline-flex items-baseline gap-1.5">
+          <span className="font-semibold tabular">{c.getValue().toLocaleString()}</span>
+          <RatingChangeBadge value={c.row.original.ratingChange} />
         </span>
-      )
-    },
-  }),
-  columnHelper.accessor("className", {
-    header: "Class",
-    cell: (c) => {
-      const name = c.getValue()
-      if (!name) return <span className="text-muted-foreground">—</span>
-      return (
-        <span className="font-medium" style={{ color: classColor(name) }}>
-          {name}
+      ),
+    }),
+    columnHelper.display({
+      id: "record",
+      header: "W–L",
+      cell: ({ row }) => (
+        <span className="tabular text-muted-foreground">
+          {row.original.wins}–{row.original.losses}
         </span>
-      )
-    },
-  }),
-  columnHelper.accessor("rating", {
-    header: "Rating",
-    cell: (c) => (
-      <span className="inline-flex items-baseline gap-1.5">
-        <span className="font-semibold tabular">{c.getValue().toLocaleString()}</span>
-        <RatingChangeBadge value={c.row.original.ratingChange} />
-      </span>
-    ),
-  }),
-  columnHelper.display({
-    id: "record",
-    header: "W–L",
-    cell: ({ row }) => (
-      <span className="tabular text-muted-foreground">
-        {row.original.wins}–{row.original.losses}
-      </span>
-    ),
-  }),
-  columnHelper.accessor((row) => winRate(row), {
-    id: "winRate",
-    header: "Win%",
-    cell: (c) => <span className="tabular">{percent.format(c.getValue())}</span>,
-  }),
-  columnHelper.accessor("spec", {
-    header: "Spec",
-    enableSorting: false,
-    cell: (c) => c.getValue() ?? <span className="text-muted-foreground">—</span>,
-  }),
-  columnHelper.display({
-    id: "armory",
-    header: () => <span className="sr-only">Armory</span>,
-    cell: ({ row }) => (
-      <div className="flex justify-end">
-        <a
-          href={armoryUrl(row.original)}
-          target="_blank"
-          rel="noreferrer"
-          title={`Open ${row.original.name} on the armory`}
-          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-primary"
-        >
-          <ExternalLink className="h-4 w-4" />
-          <span className="sr-only">Open {row.original.name} on the armory</span>
-        </a>
-      </div>
-    ),
-  }),
-]
+      ),
+    }),
+    columnHelper.accessor((row) => winRate(row), {
+      id: "winRate",
+      header: "Win%",
+      cell: (c) => <span className="tabular">{percent.format(c.getValue())}</span>,
+    }),
+    columnHelper.accessor("spec", {
+      header: "Spec",
+      enableSorting: false,
+      cell: (c) => c.getValue() ?? <span className="text-muted-foreground">—</span>,
+    }),
+    columnHelper.display({
+      id: "armory",
+      header: () => <span className="sr-only">Armory</span>,
+      cell: ({ row }) => (
+        <div className="flex justify-end">
+          {row.original.spec ? (
+            <Button asChild variant="outline" size="sm" className="gap-1.5">
+              <a
+                href={armoryUrl(row.original, realmId)}
+                target="_blank"
+                rel="noreferrer"
+                title={`View ${row.original.name}'s gear on the armory`}
+              >
+                <Swords className="h-3.5 w-3.5" aria-hidden="true" />
+                View gear
+                <span className="sr-only">for {row.original.name} on the armory</span>
+              </a>
+            </Button>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span tabIndex={0} className="inline-block cursor-not-allowed">
+                  <Button variant="outline" size="sm" className="gap-1.5 pointer-events-none" disabled>
+                    <Swords className="h-3.5 w-3.5" aria-hidden="true" />
+                    View gear
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                {row.original.hasArmory
+                  ? "No gear/talent capture on the armory for this player."
+                  : "No armory data — this player couldn't be resolved."}
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
+      ),
+    }),
+  ]
+}
 
 interface LadderTableProps {
   entries: LadderEntry[]
   sorting: SortingState
   onSortingChange: (sorting: SortingState) => void
+  realmId: number
 }
 
-export function LadderTable({ entries, sorting, onSortingChange }: LadderTableProps) {
+export function LadderTable({ entries, sorting, onSortingChange, realmId }: LadderTableProps) {
+  const columns = useMemo(() => buildColumns(realmId), [realmId])
   const table = useReactTable({
     data: entries,
     columns,
