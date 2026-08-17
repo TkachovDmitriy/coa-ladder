@@ -32,7 +32,7 @@ export function buildSnapshot(realms: RealmLadder[], capturedAt: string): Histor
     for (const bracket of Object.keys(realm.brackets) as Bracket[]) {
       const points: Record<string, HistoryPoint> = {}
       for (const entry of realm.brackets[bracket])
-        points[entry.name] = { rating: entry.rating, place: entry.place, games: entry.wins + entry.losses }
+        points[entry.name] = { rating: entry.rating, place: entry.place, wins: entry.wins, losses: entry.losses }
       brackets[bracket] = points
     }
     snapshotRealms[String(realm.id)] = brackets

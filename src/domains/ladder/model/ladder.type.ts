@@ -13,8 +13,10 @@ export interface LadderEntry {
   hasArmory: boolean
   /** Rating point change vs. the last earlier-day snapshot; absent if there's no prior data point. */
   ratingChange?: number
-  /** Games played (wins + losses) since the last earlier-day snapshot; absent if there's no prior data point. */
-  gamesChange?: number
+  /** Wins gained since the last earlier-day snapshot; absent if there's no prior data point. */
+  winsChange?: number
+  /** Losses gained since the last earlier-day snapshot; absent if there's no prior data point. */
+  lossesChange?: number
 }
 
 /** One realm's ladders, keyed by bracket. */
