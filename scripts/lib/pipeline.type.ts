@@ -67,11 +67,11 @@ export interface LadderEntry {
   spec: string | null
   armoryRealm: string | null
   hasArmory: boolean
-  /** Rating point change vs. the last earlier-day snapshot; absent if there's no prior data point. */
+  /** Rating point change vs. the last snapshot at least MIN_HISTORY_GAP_MS old; absent if there's no prior data point. */
   ratingChange?: number
-  /** Wins gained since the last earlier-day snapshot; absent if there's no prior data point. */
+  /** Wins gained since the last snapshot at least MIN_HISTORY_GAP_MS old; absent if there's no prior data point. */
   winsChange?: number
-  /** Losses gained since the last earlier-day snapshot; absent if there's no prior data point. */
+  /** Losses gained since the last snapshot at least MIN_HISTORY_GAP_MS old; absent if there's no prior data point. */
   lossesChange?: number
 }
 
@@ -83,13 +83,13 @@ export interface HistoryPoint {
   losses: number
 }
 
-/** One daily ladder snapshot: realm id (stringified) -> bracket -> player name -> point. */
+/** One ladder snapshot: realm id (stringified) -> bracket -> player name -> point. */
 export interface HistorySnapshot {
   capturedAt: string
   realms: Record<string, Record<Bracket, Record<string, HistoryPoint>>>
 }
 
-/** Rolling window of daily snapshots, used to compute ratingChange. */
+/** Rolling window of snapshots, used to compute ratingChange. */
 export interface HistoryFile {
   snapshots: HistorySnapshot[]
 }

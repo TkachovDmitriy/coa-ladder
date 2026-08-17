@@ -47,7 +47,10 @@ export const SCRIPTS_DIR = join(import.meta.dir, "..")
 export const DATA_DIR = join(SCRIPTS_DIR, "data")
 export const CACHE_FILE = join(SCRIPTS_DIR, "cache", "armory.json")
 export const HISTORY_FILE = join(SCRIPTS_DIR, "cache", "history.json")
-export const MAX_HISTORY_SNAPSHOTS = 8
+/** Minimum age a snapshot must have to be used as the "previous" comparison point. */
+export const MIN_HISTORY_GAP_MS = 60 * 60 * 1000
+/** Refresh runs twice daily, so this covers roughly the same ~8-day window as before. */
+export const MAX_HISTORY_SNAPSHOTS = 16
 export const OVERRIDES_FILE = join(SCRIPTS_DIR, "overrides.json")
 
 /** Final trimmed dataset served by the app (the only public file). */
