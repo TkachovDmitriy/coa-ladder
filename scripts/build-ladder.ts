@@ -30,7 +30,8 @@ function toEntry(e: EnrichedEntry, prevPoint: HistoryPoint | undefined): LadderE
     spec: e.spec,
     armoryRealm: e.armory_realm,
     hasArmory: e.armory_status === "resolved",
-    ratingChange: prevPoint ? ((e.rating - prevPoint.rating) / prevPoint.rating) * 100 : undefined,
+    ratingChange: prevPoint ? e.rating - prevPoint.rating : undefined,
+    gamesChange: prevPoint ? e.season_wins + e.season_losses - prevPoint.games : undefined,
   }
 }
 
