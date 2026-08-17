@@ -19,11 +19,7 @@ import type { LadderEntry } from "../../model/ladder.type"
 import { armoryUrl, winRate } from "../../utils/ladder.utils"
 
 const percent = new Intl.NumberFormat("en-US", { style: "percent", maximumFractionDigits: 0 })
-const ratingChangePercent = new Intl.NumberFormat("en-US", {
-  style: "percent",
-  maximumFractionDigits: 1,
-  signDisplay: "always",
-})
+const signedNumber = new Intl.NumberFormat("en-US", { signDisplay: "always" })
 const columnHelper = createColumnHelper<LadderEntry>()
 
 function buildColumns(realmId: number) {
@@ -76,8 +72,11 @@ function buildColumns(realmId: number) {
       id: "record",
       header: "W–L",
       cell: ({ row }) => (
-        <span className="tabular text-muted-foreground">
-          {row.original.wins}–{row.original.losses}
+        <span className="inline-flex items-baseline gap-1.5">
+          <span className="tabular text-muted-foreground">
+            {row.original.wins}–{row.original.losses}
+          </span>
+          <GamesChangeBadge value={row.original.gamesChange} />
         </span>
       ),
     }),
@@ -252,7 +251,16 @@ function RatingChangeBadge({ value }: { value: number | undefined }) {
   return (
     <span className={cn("inline-flex items-center gap-0.5 text-xs font-medium tabular", color)}>
       <Icon className="h-3 w-3" strokeWidth={2.5} aria-hidden="true" />
-      {ratingChangePercent.format(value / 100)}
+      {signedNumber.format(value)}
+    </span>
+  )
+}
+
+function GamesChangeBadge({ value }: { value: number | undefined }) {
+  if (!value) return null
+  return (
+    <span className="inline-flex items-center gap-0.5 text-xs font-medium tabular text-muted-foreground">
+      {signedNumber.format(value)}
     </span>
   )
 }
