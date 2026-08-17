@@ -51,6 +51,7 @@ export function LadderPage() {
           entries={ladder.visibleEntries}
           sorting={toSortingState(search)}
           onSortingChange={(sorting: SortingState) => updateSearch(fromSortingState(sorting))}
+          realmId={ladder.realmId}
         />
       </section>
     </div>
