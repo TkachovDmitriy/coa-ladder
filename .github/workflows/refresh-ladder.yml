@@ -49,8 +49,10 @@ jobs:
 
       # Lets pages.yml (push-triggered, no refresh) pick up this fresh copy
       # instead of the stale git-tracked public/ladder.json on every code push.
+      # Unique key, no restore-keys: this must only ever save, never restore
+      # an older cached copy over the file data:refresh just wrote.
       - name: Cache fresh ladder data
-        uses: actions/cache/save@v6
+        uses: actions/cache@v6
         with:
           path: public/ladder.json
           key: ladder-json-${{ github.run_id }}
