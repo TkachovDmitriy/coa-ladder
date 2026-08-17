@@ -37,7 +37,7 @@ jobs:
       # one that a refresh run cached, so a plain code push can't regress
       # live data to that stale committed copy.
       - name: Restore latest ladder data
-        uses: actions/cache/restore@v6
+        uses: actions/cache@v6
         with:
           path: public/ladder.json
           key: ladder-json-${{ github.run_id }}
