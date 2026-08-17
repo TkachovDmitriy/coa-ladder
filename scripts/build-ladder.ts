@@ -8,8 +8,8 @@
  */
 
 import { join } from "node:path"
-import { appendSnapshot, buildSnapshot, dayKey, findPreviousSnapshot, loadHistory, saveHistory } from "./lib/history.utils"
-import { BRACKETS, DATA_DIR, enrichedFile, LADDER_JSON_OUT, MAX_HISTORY_SNAPSHOTS, REALMS } from "./lib/pipeline.constants"
+import { appendSnapshot, buildSnapshot, findPreviousSnapshot, loadHistory, saveHistory } from "./lib/history.utils"
+import { BRACKETS, DATA_DIR, enrichedFile, LADDER_JSON_OUT, MAX_HISTORY_SNAPSHOTS, MIN_HISTORY_GAP_MS, REALMS } from "./lib/pipeline.constants"
 import type {
   Bracket,
   EnrichedEntry,
@@ -20,6 +20,10 @@ import type {
 } from "./lib/pipeline.type"
 
 function toEntry(e: EnrichedEntry, prevPoint: HistoryPoint | undefined): LadderEntry {
+  // Guards against cached history snapshots from before wins/losses were
+  // added to HistoryPoint — a stale entry with only {rating, place} would
+  // otherwise silently produce NaN (serialized as `null`) here.
+  const hasRecord = prevPoint && typeof prevPoint.wins === "number" && typeof prevPoint.losses === "number"
   return {
     place: e.place,
     name: e.name,
@@ -31,14 +35,14 @@ function toEntry(e: EnrichedEntry, prevPoint: HistoryPoint | undefined): LadderE
     armoryRealm: e.armory_realm,
     hasArmory: e.armory_status === "resolved",
     ratingChange: prevPoint ? e.rating - prevPoint.rating : undefined,
-    winsChange: prevPoint ? e.season_wins - prevPoint.wins : undefined,
-    lossesChange: prevPoint ? e.season_losses - prevPoint.losses : undefined,
+    winsChange: hasRecord ? e.season_wins - prevPoint.wins : undefined,
+    lossesChange: hasRecord ? e.season_losses - prevPoint.losses : undefined,
   }
 }
 
 const generatedAt = new Date().toISOString()
 const history = await loadHistory()
-const previousSnapshot = findPreviousSnapshot(history, dayKey(generatedAt))
+const previousSnapshot = findPreviousSnapshot(history, generatedAt, MIN_HISTORY_GAP_MS)
 
 const realms: RealmLadder[] = []
 
@@ -61,7 +65,7 @@ const dataset: LadderDataset = { generatedAt, realms }
 await Bun.write(LADDER_JSON_OUT, JSON.stringify(dataset))
 
 const snapshot = buildSnapshot(realms, generatedAt)
-await saveHistory(appendSnapshot(history, snapshot, MAX_HISTORY_SNAPSHOTS))
+await saveHistory(appendSnapshot(history, snapshot, MAX_HISTORY_SNAPSHOTS, MIN_HISTORY_GAP_MS))
 
 console.log(`Wrote ${LADDER_JSON_OUT}`)
 for (const realm of realms) {

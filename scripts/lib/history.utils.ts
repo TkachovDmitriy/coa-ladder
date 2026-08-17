@@ -1,7 +1,8 @@
 /**
  * Rolling ladder-history helpers, used by build-ladder.ts to compute
- * day-over-day ratingChange. Persisted at HISTORY_FILE via GitHub Actions
- * cache (not committed) — see .github/workflows/pages.yml.
+ * ratingChange vs. the most recent snapshot at least MIN_HISTORY_GAP_MS old.
+ * Persisted at HISTORY_FILE via GitHub Actions cache (not committed) — see
+ * .github/workflows/pages.yml.
  */
 
 import { HISTORY_FILE } from "./pipeline.constants"
@@ -16,13 +17,10 @@ export async function saveHistory(history: HistoryFile): Promise<void> {
   await Bun.write(HISTORY_FILE, JSON.stringify(history))
 }
 
-export function dayKey(iso: string): string {
-  return new Date(iso).toISOString().slice(0, 10)
-}
-
-/** Last snapshot from a different, earlier day — never a same-day rerun. */
-export function findPreviousSnapshot(history: HistoryFile, today: string): HistorySnapshot | undefined {
-  return history.snapshots.findLast((s) => dayKey(s.capturedAt) !== today)
+/** Last snapshot at least minGapMs older than capturedAt — never a near-instant rerun. */
+export function findPreviousSnapshot(history: HistoryFile, capturedAt: string, minGapMs: number): HistorySnapshot | undefined {
+  const now = new Date(capturedAt).getTime()
+  return history.snapshots.findLast((s) => now - new Date(s.capturedAt).getTime() >= minGapMs)
 }
 
 export function buildSnapshot(realms: RealmLadder[], capturedAt: string): HistorySnapshot {
@@ -40,12 +38,12 @@ export function buildSnapshot(realms: RealmLadder[], capturedAt: string): Histor
   return { capturedAt, realms: snapshotRealms }
 }
 
-/** Replace today's entry if one already exists (reruns), else append; trim to maxSnapshots. */
-export function appendSnapshot(history: HistoryFile, snapshot: HistorySnapshot, maxSnapshots: number): HistoryFile {
-  const today = dayKey(snapshot.capturedAt)
+/** Replace the last entry if it's within minGapMs (near-instant rerun), else append; trim to maxSnapshots. */
+export function appendSnapshot(history: HistoryFile, snapshot: HistorySnapshot, maxSnapshots: number, minGapMs: number): HistoryFile {
   const snapshots = [...history.snapshots]
   const last = snapshots.at(-1)
-  if (last && dayKey(last.capturedAt) === today) snapshots[snapshots.length - 1] = snapshot
+  const gap = last ? new Date(snapshot.capturedAt).getTime() - new Date(last.capturedAt).getTime() : Infinity
+  if (last && gap < minGapMs) snapshots[snapshots.length - 1] = snapshot
   else snapshots.push(snapshot)
   return { snapshots: snapshots.slice(-maxSnapshots) }
 }
