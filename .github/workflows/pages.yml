@@ -32,6 +32,18 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      # refresh-ladder.yml deploys directly without committing back, so the
+      # git-tracked public/ladder.json is only a stale seed. Pull the latest
+      # one that a refresh run cached, so a plain code push can't regress
+      # live data to that stale committed copy.
+      - name: Restore latest ladder data
+        uses: actions/cache/restore@v6
+        with:
+          path: public/ladder.json
+          key: ladder-json-${{ github.run_id }}
+          restore-keys: |
+            ladder-json-
+
       - name: Build static site
         run: bun run build
 
