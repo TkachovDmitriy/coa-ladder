@@ -76,7 +76,7 @@ function buildColumns(realmId: number) {
           <span className="tabular text-muted-foreground">
             {row.original.wins}–{row.original.losses}
           </span>
-          <GamesChangeBadge value={row.original.gamesChange} />
+          <RecordChangeBadge wins={row.original.winsChange} losses={row.original.lossesChange} />
         </span>
       ),
     }),
@@ -256,11 +256,12 @@ function RatingChangeBadge({ value }: { value: number | undefined }) {
   )
 }
 
-function GamesChangeBadge({ value }: { value: number | undefined }) {
-  if (!value) return null
+function RecordChangeBadge({ wins, losses }: { wins: number | undefined; losses: number | undefined }) {
+  if (!wins && !losses) return null
   return (
-    <span className="inline-flex items-center gap-0.5 text-xs font-medium tabular text-muted-foreground">
-      {signedNumber.format(value)}
+    <span className="inline-flex items-center gap-1 text-xs font-medium tabular">
+      {wins ? <span className="text-emerald-600 dark:text-emerald-500">{signedNumber.format(wins)}</span> : null}
+      {losses ? <span className="text-red-600 dark:text-red-500">{signedNumber.format(-losses)}</span> : null}
     </span>
   )
 }
