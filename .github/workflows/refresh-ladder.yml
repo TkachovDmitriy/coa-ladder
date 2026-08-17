@@ -47,6 +47,14 @@ jobs:
       - name: Refresh ladder data
         run: bun run data:refresh
 
+      # Lets pages.yml (push-triggered, no refresh) pick up this fresh copy
+      # instead of the stale git-tracked public/ladder.json on every code push.
+      - name: Cache fresh ladder data
+        uses: actions/cache/save@v6
+        with:
+          path: public/ladder.json
+          key: ladder-json-${{ github.run_id }}
+
       - name: Build static site
         run: bun run build
 
