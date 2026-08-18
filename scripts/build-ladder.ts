@@ -9,7 +9,16 @@
 
 import { join } from "node:path"
 import { appendSnapshot, buildSnapshot, findPreviousSnapshot, loadHistory, saveHistory } from "./lib/history.utils"
-import { BRACKETS, DATA_DIR, enrichedFile, LADDER_JSON_OUT, MAX_HISTORY_SNAPSHOTS, MIN_HISTORY_GAP_MS, REALMS } from "./lib/pipeline.constants"
+import {
+  BRACKETS,
+  CHANGE_WINDOW_MS,
+  DATA_DIR,
+  enrichedFile,
+  LADDER_JSON_OUT,
+  MAX_HISTORY_SNAPSHOTS,
+  MIN_SNAPSHOT_GAP_MS,
+  REALMS,
+} from "./lib/pipeline.constants"
 import type {
   Bracket,
   EnrichedEntry,
@@ -42,7 +51,7 @@ function toEntry(e: EnrichedEntry, prevPoint: HistoryPoint | undefined): LadderE
 
 const generatedAt = new Date().toISOString()
 const history = await loadHistory()
-const previousSnapshot = findPreviousSnapshot(history, generatedAt, MIN_HISTORY_GAP_MS)
+const previousSnapshot = findPreviousSnapshot(history, generatedAt, CHANGE_WINDOW_MS)
 
 const realms: RealmLadder[] = []
 
@@ -65,7 +74,7 @@ const dataset: LadderDataset = { generatedAt, realms }
 await Bun.write(LADDER_JSON_OUT, JSON.stringify(dataset))
 
 const snapshot = buildSnapshot(realms, generatedAt)
-await saveHistory(appendSnapshot(history, snapshot, MAX_HISTORY_SNAPSHOTS, MIN_HISTORY_GAP_MS))
+await saveHistory(appendSnapshot(history, snapshot, MAX_HISTORY_SNAPSHOTS, MIN_SNAPSHOT_GAP_MS))
 
 console.log(`Wrote ${LADDER_JSON_OUT}`)
 for (const realm of realms) {

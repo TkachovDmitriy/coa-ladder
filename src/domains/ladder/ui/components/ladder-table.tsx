@@ -7,7 +7,7 @@ import {
   type SortingState,
 } from "@tanstack/react-table"
 import { useMemo } from "react"
-import { ArrowDown, ArrowUp, ChevronsUpDown, Crown, Medal, ShieldQuestion, Swords } from "lucide-react"
+import { ArrowDown, ArrowUp, ChevronsUpDown, CircleHelp, Crown, Medal, ShieldQuestion, Swords } from "lucide-react"
 
 import { ClassIcon } from "@/shared/components/class-icon"
 import { classColor } from "@/shared/constants/classes.constants"
@@ -60,7 +60,7 @@ function buildColumns(realmId: number) {
       },
     }),
     columnHelper.accessor("rating", {
-      header: "Rating",
+      header: () => <ChangeHeader label="Rating" />,
       cell: (c) => (
         <span className="inline-flex items-baseline gap-1.5">
           <span className="font-semibold tabular">{c.getValue().toLocaleString()}</span>
@@ -70,7 +70,7 @@ function buildColumns(realmId: number) {
     }),
     columnHelper.display({
       id: "record",
-      header: "W–L",
+      header: () => <ChangeHeader label="W–L" />,
       cell: ({ row }) => (
         <span className="inline-flex items-baseline gap-1.5">
           <span className="tabular text-muted-foreground">
@@ -241,6 +241,20 @@ function SortIcon({ dir }: { dir: false | "asc" | "desc" }) {
   if (dir === "asc") return <ArrowUp className={className} />
   if (dir === "desc") return <ArrowDown className={className} />
   return <ChevronsUpDown className={className} />
+}
+
+function ChangeHeader({ label }: { label: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="inline-flex cursor-help items-center gap-1">
+          {label}
+          <CircleHelp className="h-3.5 w-3.5 text-muted-foreground/70" aria-hidden="true" />
+        </span>
+      </TooltipTrigger>
+      <TooltipContent>24h change, based on snapshots from 24h ago, 12h ago, and now.</TooltipContent>
+    </Tooltip>
+  )
 }
 
 function RatingChangeBadge({ value }: { value: number | undefined }) {
