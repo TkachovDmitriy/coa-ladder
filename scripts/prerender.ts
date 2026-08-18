@@ -71,11 +71,16 @@ function renderTable(entries: LadderEntry[]): string {
     </table>`
 }
 
-function renderPage(template: string, bracket: Bracket, entries: LadderEntry[], realmName: string, generatedAt: string): string {
+function renderPage(
+  template: string,
+  bracket: Bracket,
+  entries: LadderEntry[],
+  realmName: string,
+  generatedAt: string,
+  canonical = `${SITE_URL}/${bracket}/`,
+): string {
   const title = `CoA Arena ${bracket} Ladder — ${realmName} (Realm 40)`
   const description = `Live ${bracket} arena ladder for Conquest of Azeroth realm 40 (${realmName}): top ${Math.min(TOP_N, entries.length)} players by rating, class and win rate.`
-  const canonical = `${SITE_URL}/${bracket}`
-
   const escapedTitle = escapeHtml(title)
   const escapedDescription = escapeHtml(description)
 
@@ -115,7 +120,17 @@ if (!realm) throw new Error(`Realm ${DEFAULT_REALM_ID} missing from dist/ladder.
 for (const bracket of BRACKETS) {
   const html = renderPage(template, bracket, realm.brackets[bracket], realm.name, dataset.generatedAt)
   await Bun.write(join(DIST_DIR, bracket, "index.html"), html)
-  if (bracket === "1v1") await Bun.write(join(DIST_DIR, "index.html"), html)
+  if (bracket === "1v1") {
+    const rootHtml = renderPage(
+      template,
+      bracket,
+      realm.brackets[bracket],
+      realm.name,
+      dataset.generatedAt,
+      `${SITE_URL}/`,
+    )
+    await Bun.write(join(DIST_DIR, "index.html"), rootHtml)
+  }
 }
 
 console.log(`Prerendered ${BRACKETS.join(", ")} into ${DIST_DIR}/`)

@@ -63,11 +63,23 @@ function useDocumentMeta(bracket: Bracket, realmName: string) {
   useEffect(() => {
     document.title = `CoA Arena ${bracket} Ladder — ${realmName} (Realm 40)`
 
+    const canonicalUrl = `https://tkachovdmitriy.github.io/coa-ladder/${bracket}/`
+
     const description = document.querySelector('meta[name="description"]')
     description?.setAttribute(
       "content",
       `Live ${bracket} arena ladder for Conquest of Azeroth realm 40 (${realmName}): player ratings, class distribution and armory links.`,
     )
+
+    let canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')
+    if (!canonical) {
+      canonical = document.createElement("link")
+      canonical.rel = "canonical"
+      document.head.append(canonical)
+    }
+    canonical.href = canonicalUrl
+
+    document.querySelector('meta[property="og:url"]')?.setAttribute("content", canonicalUrl)
   }, [bracket, realmName])
 }
 
