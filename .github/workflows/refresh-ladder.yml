@@ -68,7 +68,6 @@ jobs:
           else
             git worktree add --detach "$DATA_WORKTREE"
             git -C "$DATA_WORKTREE" switch --orphan ladder-data
-            git -C "$DATA_WORKTREE" rm -rf .
           fi
 
           cp public/ladder.json "$DATA_WORKTREE/ladder.json"
