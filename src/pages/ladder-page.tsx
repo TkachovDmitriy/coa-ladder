@@ -61,14 +61,17 @@ export function LadderPage() {
 /** Keep the tab title/description in sync with the active bracket for SPA navigation. */
 function useDocumentMeta(bracket: Bracket, realmName: string) {
   useEffect(() => {
-    document.title = `CoA Arena ${bracket} Ladder — ${realmName} (Realm 40)`
+    const title = `CoA Arena ${bracket} Ladder — ${realmName} (Realm 40)`
+    const pageDescription = `Live ${bracket} arena ladder for Conquest of Azeroth realm 40 (${realmName}): player ratings, class distribution and armory links.`
+
+    document.title = title
 
     const canonicalUrl = `https://tkachovdmitriy.github.io/coa-ladder/${bracket}/`
 
     const description = document.querySelector('meta[name="description"]')
     description?.setAttribute(
       "content",
-      `Live ${bracket} arena ladder for Conquest of Azeroth realm 40 (${realmName}): player ratings, class distribution and armory links.`,
+      pageDescription,
     )
 
     let canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')
@@ -80,6 +83,33 @@ function useDocumentMeta(bracket: Bracket, realmName: string) {
     canonical.href = canonicalUrl
 
     document.querySelector('meta[property="og:url"]')?.setAttribute("content", canonicalUrl)
+
+    const structuredData = document.querySelector<HTMLScriptElement>("#structured-data")
+    if (structuredData) {
+      structuredData.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://tkachovdmitriy.github.io/coa-ladder/#website",
+            url: "https://tkachovdmitriy.github.io/coa-ladder/",
+            name: "CoA Arena Ladder",
+            description:
+              "CoA Arena Ladder tracks Conquest of Azeroth realm 40 PvP rankings for 1v1, 2v2 and 3v3, with player ratings, class statistics and armory links.",
+            inLanguage: "en",
+          },
+          {
+            "@type": "WebPage",
+            "@id": `${canonicalUrl}#webpage`,
+            url: canonicalUrl,
+            name: title,
+            description: pageDescription,
+            isPartOf: { "@id": "https://tkachovdmitriy.github.io/coa-ladder/#website" },
+            inLanguage: "en",
+          },
+        ],
+      })
+    }
   }, [bracket, realmName])
 }
 

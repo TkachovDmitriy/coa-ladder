@@ -15,6 +15,8 @@ const DIST_DIR = join(import.meta.dir, "..", "dist")
 const SITE_URL = "https://tkachovdmitriy.github.io/coa-ladder"
 const DEFAULT_REALM_ID = 40
 const TOP_N = 50
+const SITE_DESCRIPTION =
+  "CoA Arena Ladder tracks Conquest of Azeroth realm 40 PvP rankings for 1v1, 2v2 and 3v3, with player ratings, class statistics and armory links."
 
 type Bracket = "1v1" | "2v2" | "3v3"
 
@@ -83,6 +85,28 @@ function renderPage(
   const description = `Live ${bracket} arena ladder for Conquest of Azeroth realm 40 (${realmName}): top ${Math.min(TOP_N, entries.length)} players by rating, class and win rate.`
   const escapedTitle = escapeHtml(title)
   const escapedDescription = escapeHtml(description)
+  const structuredData = JSON.stringify({
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        url: `${SITE_URL}/`,
+        name: "CoA Arena Ladder",
+        description: SITE_DESCRIPTION,
+        inLanguage: "en",
+      },
+      {
+        "@type": "WebPage",
+        "@id": `${canonical}#webpage`,
+        url: canonical,
+        name: title,
+        description,
+        isPartOf: { "@id": `${SITE_URL}/#website` },
+        inLanguage: "en",
+      },
+    ],
+  }).replace(/</g, "\\u003c")
 
   return template
     .replace(/<title>.*?<\/title>/, `<title>${escapedTitle}</title>`)
@@ -92,6 +116,10 @@ function renderPage(
     .replace(/<meta\s+property="og:url"[\s\S]*?\/>/, `<meta property="og:url" content="${canonical}" />`)
     .replace(/<meta\s+name="twitter:title"[\s\S]*?\/>/, `<meta name="twitter:title" content="${escapedTitle}" />`)
     .replace(/<meta\s+name="twitter:description"[\s\S]*?\/>/, `<meta name="twitter:description" content="${escapedDescription}" />`)
+    .replace(
+      /<script\s+id="structured-data"\s+type="application\/ld\+json">[\s\S]*?<\/script>/,
+      `<script id="structured-data" type="application/ld+json">${structuredData}</script>`,
+    )
     .replace("</head>", `    <link rel="canonical" href="${canonical}" />\n  </head>`)
     .replace(
       '<div id="root"></div>',
@@ -105,6 +133,7 @@ function renderPage(
         #root th { color: hsl(var(--muted-foreground)); font-weight: 500; }
       </style>
       <h1>${escapeHtml(title)}</h1>
+      <p>${escapeHtml(SITE_DESCRIPTION)}</p>
       <p>Data updated ${new Date(generatedAt).toUTCString()}</p>
       ${renderTable(entries)}
     </main></div>`,
