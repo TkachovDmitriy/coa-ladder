@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -34,12 +34,24 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      # Rolling day-over-day rating snapshots, not committed — see scripts/lib/history.utils.ts.
-      - name: Restore ladder history cache
+      # History is durable on a data-only branch. The first run bootstraps it
+      # from the legacy Actions cache when the branch does not exist yet.
+      - name: Restore ladder history
+        id: ladder-data
+        run: |
+          if git fetch origin ladder-data; then
+            git show origin/ladder-data:history.json > scripts/cache/history.json
+            echo 'exists=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'exists=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Migrate legacy history cache
+        if: steps.ladder-data.outputs.exists == 'false'
         uses: actions/cache@v6
         with:
           path: scripts/cache/history.json
-          key: ladder-history-${{ github.run_id }}
+          key: ladder-history-migration-${{ github.run_id }}
           restore-keys: |
             ladder-history-
 
@@ -47,15 +59,30 @@ jobs:
       - name: Refresh ladder data
         run: bun run data:refresh
 
-      # Lets pages.yml (push-triggered, no refresh) pick up this fresh copy
-      # instead of the stale git-tracked public/ladder.json on every code push.
-      # Unique key, no restore-keys: this must only ever save, never restore
-      # an older cached copy over the file data:refresh just wrote.
-      - name: Cache fresh ladder data
-        uses: actions/cache@v6
-        with:
-          path: public/ladder.json
-          key: ladder-json-${{ github.run_id }}
+      - name: Persist ladder data
+        env:
+          DATA_WORKTREE: /tmp/coa-ladder-data
+        run: |
+          if git show-ref --verify --quiet refs/remotes/origin/ladder-data; then
+            git worktree add --detach "$DATA_WORKTREE" origin/ladder-data
+          else
+            git worktree add --detach "$DATA_WORKTREE"
+            git -C "$DATA_WORKTREE" switch --orphan ladder-data
+            git -C "$DATA_WORKTREE" rm -rf .
+          fi
+
+          cp public/ladder.json "$DATA_WORKTREE/ladder.json"
+          cp scripts/cache/history.json "$DATA_WORKTREE/history.json"
+          git -C "$DATA_WORKTREE" add ladder.json history.json
+
+          if git -C "$DATA_WORKTREE" diff --cached --quiet; then
+            echo 'Ladder data is unchanged.'
+          else
+            git -C "$DATA_WORKTREE" config user.name github-actions[bot]
+            git -C "$DATA_WORKTREE" config user.email 41898282+github-actions[bot]@users.noreply.github.com
+            git -C "$DATA_WORKTREE" commit -m "data: refresh ladder ${{ github.run_id }}"
+            git -C "$DATA_WORKTREE" push origin HEAD:ladder-data
+          fi
 
       - name: Build static site
         run: bun run build

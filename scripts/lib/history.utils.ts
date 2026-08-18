@@ -1,8 +1,8 @@
 /**
  * Rolling ladder-history helpers, used by build-ladder.ts to compute
  * ratingChange vs. the most recent snapshot at least MIN_HISTORY_GAP_MS old.
- * Persisted at HISTORY_FILE via GitHub Actions cache (not committed) — see
- * .github/workflows/pages.yml.
+ * Persisted at HISTORY_FILE and copied to the durable ladder-data branch by
+ * .github/workflows/refresh-ladder.yml.
  */
 
 import { HISTORY_FILE } from "./pipeline.constants"
