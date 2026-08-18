@@ -1,6 +1,6 @@
 /**
  * Rolling ladder-history helpers, used by build-ladder.ts to compute
- * ratingChange vs. the most recent snapshot at least CHANGE_WINDOW_MS old.
+ * ratingChange vs. the snapshot closest to the configured comparison age.
  * Persisted at HISTORY_FILE and copied to the durable ladder-data branch by
  * .github/workflows/refresh-ladder.yml.
  */
@@ -17,10 +17,25 @@ export async function saveHistory(history: HistoryFile): Promise<void> {
   await Bun.write(HISTORY_FILE, JSON.stringify(history))
 }
 
-/** Last snapshot at least minGapMs older than capturedAt — never a near-instant rerun. */
-export function findPreviousSnapshot(history: HistoryFile, capturedAt: string, minGapMs: number): HistorySnapshot | undefined {
+/**
+ * Snapshot closest to targetAgeMs, excluding near-instant snapshots younger
+ * than minAgeMs. This keeps the comparison near 24h without hiding changes
+ * when the available history falls a few minutes short of that exact age.
+ */
+export function findPreviousSnapshot(
+  history: HistoryFile,
+  capturedAt: string,
+  targetAgeMs: number,
+  minAgeMs = targetAgeMs,
+): HistorySnapshot | undefined {
   const now = new Date(capturedAt).getTime()
-  return history.snapshots.findLast((s) => now - new Date(s.capturedAt).getTime() >= minGapMs)
+  return history.snapshots
+    .map((snapshot) => ({ snapshot, age: now - new Date(snapshot.capturedAt).getTime() }))
+    .filter(({ age }) => age >= minAgeMs)
+    .reduce<{ snapshot: HistorySnapshot; distance: number } | undefined>((closest, { snapshot, age }) => {
+      const distance = Math.abs(age - targetAgeMs)
+      return !closest || distance < closest.distance ? { snapshot, distance } : closest
+    }, undefined)?.snapshot
 }
 
 export function buildSnapshot(realms: RealmLadder[], capturedAt: string): HistorySnapshot {
