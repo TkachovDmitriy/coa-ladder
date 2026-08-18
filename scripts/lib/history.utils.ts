@@ -1,6 +1,6 @@
 /**
  * Rolling ladder-history helpers, used by build-ladder.ts to compute
- * ratingChange vs. the most recent snapshot at least MIN_HISTORY_GAP_MS old.
+ * ratingChange vs. the most recent snapshot at least CHANGE_WINDOW_MS old.
  * Persisted at HISTORY_FILE and copied to the durable ladder-data branch by
  * .github/workflows/refresh-ladder.yml.
  */

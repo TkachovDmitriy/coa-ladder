@@ -67,11 +67,11 @@ export interface LadderEntry {
   spec: string | null
   armoryRealm: string | null
   hasArmory: boolean
-  /** Rating point change vs. the last snapshot at least MIN_HISTORY_GAP_MS old; absent if there's no prior data point. */
+  /** Rating point change over the configured comparison window; absent if there's no prior data point. */
   ratingChange?: number
-  /** Wins gained since the last snapshot at least MIN_HISTORY_GAP_MS old; absent if there's no prior data point. */
+  /** Wins gained over the configured comparison window; absent if there's no prior data point. */
   winsChange?: number
-  /** Losses gained since the last snapshot at least MIN_HISTORY_GAP_MS old; absent if there's no prior data point. */
+  /** Losses gained over the configured comparison window; absent if there's no prior data point. */
   lossesChange?: number
 }
 
