@@ -51,7 +51,7 @@ function toEntry(e: EnrichedEntry, prevPoint: HistoryPoint | undefined): LadderE
 
 const generatedAt = new Date().toISOString()
 const history = await loadHistory()
-const previousSnapshot = findPreviousSnapshot(history, generatedAt, CHANGE_WINDOW_MS)
+const previousSnapshot = findPreviousSnapshot(history, generatedAt, CHANGE_WINDOW_MS, MIN_SNAPSHOT_GAP_MS)
 
 const realms: RealmLadder[] = []
 

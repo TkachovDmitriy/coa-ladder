@@ -252,7 +252,7 @@ function ChangeHeader({ label }: { label: string }) {
           <CircleHelp className="h-3.5 w-3.5 text-muted-foreground/70" aria-hidden="true" />
         </span>
       </TooltipTrigger>
-      <TooltipContent>24h change, based on snapshots from 24h ago, 12h ago, and now.</TooltipContent>
+      <TooltipContent>Change over the last 24 hours.</TooltipContent>
     </Tooltip>
   )
 }

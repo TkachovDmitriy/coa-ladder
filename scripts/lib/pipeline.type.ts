@@ -67,11 +67,11 @@ export interface LadderEntry {
   spec: string | null
   armoryRealm: string | null
   hasArmory: boolean
-  /** Rating point change over the configured comparison window; absent if there's no prior data point. */
+  /** Rating point change versus the snapshot closest to 24h ago; absent if there's no prior data point. */
   ratingChange?: number
-  /** Wins gained over the configured comparison window; absent if there's no prior data point. */
+  /** Wins gained versus the snapshot closest to 24h ago; absent if there's no prior data point. */
   winsChange?: number
-  /** Losses gained over the configured comparison window; absent if there's no prior data point. */
+  /** Losses gained versus the snapshot closest to 24h ago; absent if there's no prior data point. */
   lossesChange?: number
 }
 

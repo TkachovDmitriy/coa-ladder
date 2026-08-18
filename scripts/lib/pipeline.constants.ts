@@ -49,7 +49,7 @@ export const CACHE_FILE = join(SCRIPTS_DIR, "cache", "armory.json")
 export const HISTORY_FILE = join(SCRIPTS_DIR, "cache", "history.json")
 /** Near-instant reruns replace the latest snapshot instead of adding noise. */
 export const MIN_SNAPSHOT_GAP_MS = 60 * 60 * 1000
-/** Rating and W/L changes compare current data with a snapshot at least 24 hours old. */
+/** Target age for displayed rating and W/L changes; the closest eligible snapshot is used. */
 export const CHANGE_WINDOW_MS = 24 * 60 * 60 * 1000
 /** Refresh runs twice daily, so this covers roughly the same ~8-day window as before. */
 export const MAX_HISTORY_SNAPSHOTS = 16
