@@ -39,7 +39,7 @@ export function PreviouslyRankedTable({ entries, currentCutoff }: PreviouslyRank
   if (entries.length === 0) return null
 
   return (
-    <details className="group overflow-hidden rounded-xl border border-dashed border-border bg-card/60 shadow-sm open:border-solid open:bg-card">
+    <details open className="group overflow-hidden rounded-xl border border-dashed border-border bg-card/60 shadow-sm open:border-solid open:bg-card">
       <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-4 marker:hidden transition-colors hover:bg-secondary/30 sm:px-5">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-secondary text-muted-foreground transition-colors group-open:bg-primary/10 group-open:text-primary">
           <Ghost className="size-5" aria-hidden="true" />

@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "coa-ladder-twitch-live",
+  "main": "worker/twitch-live.js",
+  "compatibility_date": "2026-08-21",
+  "vars": {
+    "ALLOWED_ORIGIN": "https://tkachovdmitriy.github.io",
+    "TWITCH_CHANNELS": "arkaviun"
+  }
+}
