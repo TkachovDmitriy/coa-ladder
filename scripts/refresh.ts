@@ -16,7 +16,10 @@ const script = (name: string) => join(SCRIPTS_DIR, name)
 console.log("① pull — fetch raw ladders (all realms x brackets)")
 await $`bun ${script("pull.ts")}`
 
-console.log("\n② enrich — resolve class/spec per realm/bracket")
+console.log("\n② enrich tracked — resolve historical players missing class data")
+await $`bun ${script("enrich-tracked.ts")}`
+
+console.log("\n③ enrich — resolve class/spec per realm/bracket")
 for (const realm of REALMS) {
   for (const bracket of BRACKETS) {
     console.log(`\n· realm ${realm.id} ${bracket.id}`)
@@ -26,7 +29,7 @@ for (const realm of REALMS) {
   }
 }
 
-console.log("\n③ build — merge into public/ladder.json")
+console.log("\n④ build — merge into public/ladder.json")
 await $`bun ${script("build-ladder.ts")}`
 
 console.log("\n✓ refresh complete")

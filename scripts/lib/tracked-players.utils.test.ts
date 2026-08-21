@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test"
 
-import type { LadderEntry, TrackedPlayersFile } from "./pipeline.type"
-import { seedTrackedPlayersFromHistory, updateTrackedBracket } from "./tracked-players.utils"
+import type { CacheHit, LadderEntry, TrackedPlayersFile } from "./pipeline.type"
+import { applyArmoryHit, seedTrackedPlayersFromHistory, updateTrackedBracket } from "./tracked-players.utils"
 
 const entry = (name: string, rating: number): LadderEntry => ({
   place: 100,
@@ -70,5 +70,31 @@ describe("seedTrackedPlayersFromHistory", () => {
       firstSeenAt: "2026-08-19T00:00:00.000Z",
       lastSeenAt: "2026-08-20T00:00:00.000Z",
     })
+  })
+})
+
+describe("applyArmoryHit", () => {
+  test("backfills class, spec and armory fields on a historical player", () => {
+    const tracked: TrackedPlayersFile = { realms: {} }
+    updateTrackedBracket(tracked, 40, "1v1", [entry("Historical", 1500)], "2026-08-20T00:00:00.000Z")
+    const player = tracked.realms["40"]["1v1"].Historical
+    player.className = null
+    player.spec = null
+    player.armoryRealm = null
+    player.hasArmory = false
+    const hit: CacheHit = {
+      id: 123,
+      class: "Reaper",
+      realm: "Vol'Jin",
+      region: "US",
+      has_armory: true,
+      status: "resolved",
+      spec: "Harvest",
+      spec_status: "resolved",
+    }
+
+    applyArmoryHit(player, hit)
+
+    expect(player).toMatchObject({ className: "Reaper", spec: "Harvest", armoryRealm: "Vol'Jin", hasArmory: true })
   })
 })
