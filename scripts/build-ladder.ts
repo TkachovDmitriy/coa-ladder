@@ -27,6 +27,7 @@ import type {
   LadderEntry,
   RealmLadder,
 } from "./lib/pipeline.type"
+import { loadTrackedPlayers, saveTrackedPlayers, updateTrackedBracket } from "./lib/tracked-players.utils"
 
 function toEntry(e: EnrichedEntry, prevPoint: HistoryPoint | undefined): LadderEntry {
   // Guards against cached history snapshots from before wins/losses were
@@ -51,12 +52,14 @@ function toEntry(e: EnrichedEntry, prevPoint: HistoryPoint | undefined): LadderE
 
 const generatedAt = new Date().toISOString()
 const history = await loadHistory()
+const trackedPlayers = await loadTrackedPlayers()
 const previousSnapshot = findPreviousSnapshot(history, generatedAt, CHANGE_WINDOW_MS, MIN_SNAPSHOT_GAP_MS)
 
 const realms: RealmLadder[] = []
 
 for (const realm of REALMS) {
   const brackets = {} as Record<Bracket, LadderEntry[]>
+  const previouslyRanked = {} as RealmLadder["previouslyRanked"]
   for (const bracket of BRACKETS) {
     const file = Bun.file(join(DATA_DIR, enrichedFile(realm.id, bracket.id)))
     if (!(await file.exists())) {
@@ -66,8 +69,15 @@ for (const realm of REALMS) {
     const enriched: EnrichedEntry[] = await file.json()
     const prevPoints = previousSnapshot?.realms[String(realm.id)]?.[bracket.id] ?? {}
     brackets[bracket.id] = enriched.map((e) => toEntry(e, prevPoints[e.name]))
+    previouslyRanked[bracket.id] = updateTrackedBracket(
+      trackedPlayers,
+      realm.id,
+      bracket.id,
+      brackets[bracket.id],
+      generatedAt,
+    )
   }
-  realms.push({ id: realm.id, name: realm.name, brackets })
+  realms.push({ id: realm.id, name: realm.name, brackets, previouslyRanked })
 }
 
 const dataset: LadderDataset = { generatedAt, realms }
@@ -75,6 +85,7 @@ await Bun.write(LADDER_JSON_OUT, JSON.stringify(dataset))
 
 const snapshot = buildSnapshot(realms, generatedAt)
 await saveHistory(appendSnapshot(history, snapshot, MAX_HISTORY_SNAPSHOTS, MIN_SNAPSHOT_GAP_MS))
+await saveTrackedPlayers(trackedPlayers)
 
 console.log(`Wrote ${LADDER_JSON_OUT}`)
 for (const realm of realms) {

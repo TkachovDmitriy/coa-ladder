@@ -75,6 +75,12 @@ export interface LadderEntry {
   lossesChange?: number
 }
 
+/** A player retained after leaving the API's current top 100. */
+export interface PreviouslyRankedEntry extends LadderEntry {
+  firstSeenAt: string
+  lastSeenAt: string
+}
+
 /** One player's tracked stats at snapshot time. */
 export interface HistoryPoint {
   rating: number
@@ -99,6 +105,14 @@ export interface RealmLadder {
   id: number
   name: string
   brackets: Record<Bracket, LadderEntry[]>
+  previouslyRanked: Record<Bracket, PreviouslyRankedEntry[]>
+}
+
+export type TrackedPlayer = PreviouslyRankedEntry
+
+/** Durable registry: realm id -> bracket -> player name -> last known data. */
+export interface TrackedPlayersFile {
+  realms: Record<string, Record<Bracket, Record<string, TrackedPlayer>>>
 }
 
 /** The single public dataset the web app fetches (all realms + brackets). */

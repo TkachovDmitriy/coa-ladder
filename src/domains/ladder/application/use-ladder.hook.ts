@@ -4,7 +4,7 @@ import type { Bracket } from "@/shared/constants/brackets.constants"
 import { type RealmId, realmName } from "@/shared/constants/realms.constants"
 
 import type { LadderSearchParams } from "../model/ladder-search.type"
-import type { LadderEntry, LadderState } from "../model/ladder.type"
+import type { LadderEntry, LadderState, PreviouslyRankedEntry } from "../model/ladder.type"
 import { filterEntries } from "../utils/ladder.utils"
 import { useLadderStore } from "./ladder.store"
 
@@ -17,6 +17,7 @@ interface UseLadderResult {
   bracketEntries: LadderEntry[]
   /** entries after search/class/spec filter (drives the table; TanStack Table sorts). */
   visibleEntries: LadderEntry[]
+  previouslyRankedEntries: PreviouslyRankedEntry[]
   classOptions: string[]
   specOptions: string[]
   generatedAt: string | null
@@ -35,6 +36,7 @@ export function useLadder(bracket: Bracket, search: LadderSearchParams): UseLadd
 
   const realm = state.status === "success" ? state.dataset.realms.find((r) => r.id === realmId) : undefined
   const bracketEntries = realm?.brackets[bracket] ?? []
+  const previouslyRankedEntries = realm?.previouslyRanked?.[bracket] ?? []
   const generatedAt = state.status === "success" ? state.dataset.generatedAt : null
 
   const classOptions = useMemo(() => {
@@ -61,6 +63,7 @@ export function useLadder(bracket: Bracket, search: LadderSearchParams): UseLadd
     setRealm,
     bracketEntries,
     visibleEntries,
+    previouslyRankedEntries,
     classOptions,
     specOptions,
     generatedAt,

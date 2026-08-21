@@ -19,11 +19,18 @@ export interface LadderEntry {
   lossesChange?: number
 }
 
+/** Last known data for a player who is no longer in the current top 100. */
+export interface PreviouslyRankedEntry extends LadderEntry {
+  firstSeenAt: string
+  lastSeenAt: string
+}
+
 /** One realm's ladders, keyed by bracket. */
 export interface RealmLadder {
   id: number
   name: string
   brackets: Record<Bracket, LadderEntry[]>
+  previouslyRanked?: Record<Bracket, PreviouslyRankedEntry[]>
 }
 
 /** The full dataset the app fetches (all realms + brackets in one file). */
