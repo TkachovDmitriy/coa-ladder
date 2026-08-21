@@ -47,6 +47,7 @@ export const SCRIPTS_DIR = join(import.meta.dir, "..")
 export const DATA_DIR = join(SCRIPTS_DIR, "data")
 export const CACHE_FILE = join(SCRIPTS_DIR, "cache", "armory.json")
 export const HISTORY_FILE = join(SCRIPTS_DIR, "cache", "history.json")
+export const TRACKED_PLAYERS_FILE = join(SCRIPTS_DIR, "cache", "tracked-players.json")
 /** Near-instant reruns replace the latest snapshot instead of adding noise. */
 export const MIN_SNAPSHOT_GAP_MS = 60 * 60 * 1000
 /** Target age for displayed rating and W/L changes; the closest eligible snapshot is used. */

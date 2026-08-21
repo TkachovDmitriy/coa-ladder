@@ -41,6 +41,9 @@ jobs:
         run: |
           if git fetch origin ladder-data; then
             git show origin/ladder-data:history.json > scripts/cache/history.json
+            if git cat-file -e origin/ladder-data:tracked-players.json 2>/dev/null; then
+              git show origin/ladder-data:tracked-players.json > scripts/cache/tracked-players.json
+            fi
             echo 'exists=true' >> "$GITHUB_OUTPUT"
           else
             echo 'exists=false' >> "$GITHUB_OUTPUT"
@@ -72,7 +75,8 @@ jobs:
 
           cp public/ladder.json "$DATA_WORKTREE/ladder.json"
           cp scripts/cache/history.json "$DATA_WORKTREE/history.json"
-          git -C "$DATA_WORKTREE" add ladder.json history.json
+          cp scripts/cache/tracked-players.json "$DATA_WORKTREE/tracked-players.json"
+          git -C "$DATA_WORKTREE" add ladder.json history.json tracked-players.json
 
           if git -C "$DATA_WORKTREE" diff --cached --quiet; then
             echo 'Ladder data is unchanged.'

@@ -6,3 +6,4 @@ dist/
 scripts/notes/
 scripts/data/
 scripts/cache/history.json
+scripts/cache/tracked-players.json

@@ -5,7 +5,7 @@ import { useEffect } from "react"
 import { useLadder } from "@/domains/ladder/application/use-ladder.hook"
 import type { LadderSearchParams } from "@/domains/ladder/model/ladder-search.type"
 import { fromSortingState, toSortingState } from "@/domains/ladder/utils/ladder-search.utils"
-import { LadderTable, LadderToolbar, StatTiles } from "@/domains/ladder/ui"
+import { LadderTable, LadderToolbar, PreviouslyRankedTable, StatTiles } from "@/domains/ladder/ui"
 import { Stats } from "@/domains/stats/ui"
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card"
 import { Skeleton } from "@/shared/components/ui/skeleton"
@@ -54,6 +54,11 @@ export function LadderPage() {
           realmId={ladder.realmId}
         />
       </section>
+
+      <PreviouslyRankedTable
+        entries={ladder.previouslyRankedEntries}
+        currentCutoff={ladder.bracketEntries.at(-1)?.rating ?? null}
+      />
     </div>
   )
 }
