@@ -12,6 +12,7 @@ import { useEffect, useMemo, useState } from "react"
 import { ArrowDown, ArrowUp, ChevronsUpDown, CircleHelp, Crown, Medal, ShieldQuestion, Swords } from "lucide-react"
 
 import { ClassIcon } from "@/shared/components/class-icon"
+import { findStreamer, type LiveStream, STREAMERS, StreamerLink } from "@/domains/streamers"
 import { classColor } from "@/shared/constants/classes.constants"
 import { Button } from "@/shared/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip"
@@ -25,7 +26,7 @@ const percent = new Intl.NumberFormat("en-US", { style: "percent", maximumFracti
 const signedNumber = new Intl.NumberFormat("en-US", { signDisplay: "always" })
 const columnHelper = createColumnHelper<LadderEntry>()
 
-function buildColumns(realmId: number) {
+function buildColumns(realmId: number, liveStreams: ReadonlyMap<string, LiveStream>) {
   return [
     columnHelper.display({
       id: "classIcon",
@@ -42,10 +43,14 @@ function buildColumns(realmId: number) {
       cell: (c) => {
         const name = c.getValue()
         if (!name) return <span className="text-muted-foreground">—</span>
+        const streamer = findStreamer(STREAMERS, realmId, name)
         return (
           <span className="inline-flex items-center gap-1.5">
             <span className="font-medium">{name}</span>
             {c.row.original.hasArmory ? null : <NoArmoryBadge />}
+            {streamer ? (
+              <StreamerLink streamer={streamer} liveStream={liveStreams.get(streamer.twitchChannel.toLowerCase())} />
+            ) : null}
           </span>
         )
       },
@@ -139,10 +144,11 @@ interface LadderTableProps {
   sorting: SortingState
   onSortingChange: (sorting: SortingState) => void
   realmId: number
+  liveStreams: ReadonlyMap<string, LiveStream>
 }
 
-export function LadderTable({ entries, sorting, onSortingChange, realmId }: LadderTableProps) {
-  const columns = useMemo(() => buildColumns(realmId), [realmId])
+export function LadderTable({ entries, sorting, onSortingChange, realmId, liveStreams }: LadderTableProps) {
+  const columns = useMemo(() => buildColumns(realmId, liveStreams), [realmId, liveStreams])
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 25 })
 
   useEffect(() => {

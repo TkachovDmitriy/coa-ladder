@@ -8,6 +8,7 @@ import { fromSortingState, toSortingState } from "@/domains/ladder/utils/ladder-
 import { ratingCutoff } from "@/domains/ladder/utils/ladder.utils"
 import { LadderTable, LadderToolbar, PreviouslyRankedTable, StatTiles } from "@/domains/ladder/ui"
 import { Stats } from "@/domains/stats/ui"
+import { STREAMERS, TWITCH_STATUS_URL, uniqueTwitchChannels, useLiveStreams } from "@/domains/streamers"
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card"
 import { Skeleton } from "@/shared/components/ui/skeleton"
 import type { Bracket } from "@/shared/constants/brackets.constants"
@@ -21,6 +22,8 @@ export function LadderPage() {
   const navigate = route.useNavigate()
   const ladder = useLadder(bracket, search)
   const { state } = ladder
+  const streamerChannels = uniqueTwitchChannels(STREAMERS)
+  const liveStreams = useLiveStreams(streamerChannels, TWITCH_STATUS_URL, state.status === "success")
 
   useDocumentMeta(bracket, ladder.realmName)
 
@@ -53,6 +56,7 @@ export function LadderPage() {
           sorting={toSortingState(search)}
           onSortingChange={(sorting: SortingState) => updateSearch(fromSortingState(sorting))}
           realmId={ladder.realmId}
+          liveStreams={liveStreams}
         />
       </section>
 
