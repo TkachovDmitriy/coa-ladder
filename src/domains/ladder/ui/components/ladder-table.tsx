@@ -149,7 +149,7 @@ interface LadderTableProps {
 
 export function LadderTable({ entries, sorting, onSortingChange, realmId, liveStreams }: LadderTableProps) {
   const columns = useMemo(() => buildColumns(realmId, liveStreams), [realmId, liveStreams])
-  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 25 })
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 })
 
   useEffect(() => {
     setPagination((current) => ({ ...current, pageIndex: 0 }))
