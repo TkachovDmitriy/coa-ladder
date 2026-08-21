@@ -41,8 +41,6 @@ jobs:
 
       - name: Build static site
         run: bun run build
-        env:
-          VITE_TWITCH_STATUS_URL: ${{ vars.TWITCH_STATUS_URL }}
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6

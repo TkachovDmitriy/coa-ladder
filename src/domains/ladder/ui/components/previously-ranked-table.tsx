@@ -6,7 +6,7 @@ import { Input } from "@/shared/components/ui/input"
 import { classColor } from "@/shared/constants/classes.constants"
 
 import type { PreviouslyRankedEntry } from "../../model/ladder.type"
-import { TablePagination } from "./table-pagination"
+import { readStoredPageSize, storePageSize, TablePagination } from "./table-pagination"
 
 const dateTime = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" })
 
@@ -18,7 +18,7 @@ interface PreviouslyRankedTableProps {
 export function PreviouslyRankedTable({ entries, currentCutoff }: PreviouslyRankedTableProps) {
   const [search, setSearch] = useState("")
   const [pageIndex, setPageIndex] = useState(0)
-  const [pageSize, setPageSize] = useState(10)
+  const [pageSize, setPageSize] = useState(readStoredPageSize)
   const visible = useMemo(() => {
     const query = search.trim().toLowerCase()
     return [...entries]
@@ -111,6 +111,7 @@ export function PreviouslyRankedTable({ entries, currentCutoff }: PreviouslyRank
           totalItems={visible.length}
           onPageIndexChange={setPageIndex}
           onPageSizeChange={(size) => {
+            storePageSize(size)
             setPageSize(size)
             setPageIndex(0)
           }}

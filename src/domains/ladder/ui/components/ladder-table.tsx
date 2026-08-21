@@ -12,7 +12,7 @@ import { useEffect, useMemo, useState } from "react"
 import { ArrowDown, ArrowUp, ChevronsUpDown, CircleHelp, Crown, Medal, ShieldQuestion, Swords } from "lucide-react"
 
 import { ClassIcon } from "@/shared/components/class-icon"
-import { findStreamer, type LiveStream, STREAMERS, StreamerLink } from "@/domains/streamers"
+import { findStreamer, STREAMERS, StreamerLink } from "@/domains/streamers"
 import { classColor } from "@/shared/constants/classes.constants"
 import { Button } from "@/shared/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip"
@@ -20,13 +20,13 @@ import { cn } from "@/shared/utils/utils"
 
 import type { LadderEntry } from "../../model/ladder.type"
 import { armoryUrl, winRate } from "../../utils/ladder.utils"
-import { TablePagination } from "./table-pagination"
+import { readStoredPageSize, storePageSize, TablePagination } from "./table-pagination"
 
 const percent = new Intl.NumberFormat("en-US", { style: "percent", maximumFractionDigits: 0 })
 const signedNumber = new Intl.NumberFormat("en-US", { signDisplay: "always" })
 const columnHelper = createColumnHelper<LadderEntry>()
 
-function buildColumns(realmId: number, liveStreams: ReadonlyMap<string, LiveStream>) {
+function buildColumns(realmId: number) {
   return [
     columnHelper.display({
       id: "classIcon",
@@ -49,7 +49,7 @@ function buildColumns(realmId: number, liveStreams: ReadonlyMap<string, LiveStre
             <span className="font-medium">{name}</span>
             {c.row.original.hasArmory ? null : <NoArmoryBadge />}
             {streamer ? (
-              <StreamerLink streamer={streamer} liveStream={liveStreams.get(streamer.twitchChannel.toLowerCase())} />
+              <StreamerLink streamer={streamer} />
             ) : null}
           </span>
         )
@@ -144,12 +144,11 @@ interface LadderTableProps {
   sorting: SortingState
   onSortingChange: (sorting: SortingState) => void
   realmId: number
-  liveStreams: ReadonlyMap<string, LiveStream>
 }
 
-export function LadderTable({ entries, sorting, onSortingChange, realmId, liveStreams }: LadderTableProps) {
-  const columns = useMemo(() => buildColumns(realmId, liveStreams), [realmId, liveStreams])
-  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 })
+export function LadderTable({ entries, sorting, onSortingChange, realmId }: LadderTableProps) {
+  const columns = useMemo(() => buildColumns(realmId), [realmId])
+  const [pagination, setPagination] = useState<PaginationState>(() => ({ pageIndex: 0, pageSize: readStoredPageSize() }))
 
   useEffect(() => {
     setPagination((current) => ({ ...current, pageIndex: 0 }))
@@ -224,7 +223,10 @@ export function LadderTable({ entries, sorting, onSortingChange, realmId, liveSt
         pageSize={pagination.pageSize}
         totalItems={entries.length}
         onPageIndexChange={(pageIndex) => table.setPageIndex(pageIndex)}
-        onPageSizeChange={(pageSize) => setPagination({ pageIndex: 0, pageSize })}
+        onPageSizeChange={(pageSize) => {
+          storePageSize(pageSize)
+          setPagination({ pageIndex: 0, pageSize })
+        }}
       />
     </div>
   )

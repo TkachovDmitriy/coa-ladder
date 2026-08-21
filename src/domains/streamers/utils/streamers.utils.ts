@@ -6,7 +6,3 @@ export function findStreamer(streamers: readonly Streamer[], realmId: number, ch
     (streamer) => streamer.realmId === realmId && streamer.characterName.trim().toLowerCase() === normalizedName,
   )
 }
-
-export function uniqueTwitchChannels(streamers: readonly Streamer[]) {
-  return [...new Set(streamers.map((streamer) => streamer.twitchChannel.trim().toLowerCase()).filter(Boolean))].sort()
-}

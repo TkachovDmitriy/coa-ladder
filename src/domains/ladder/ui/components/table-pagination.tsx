@@ -3,6 +3,25 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/shared/components/ui/button"
 
 const PAGE_SIZES = [10, 25, 50, 100] as const
+const DEFAULT_PAGE_SIZE = 10
+const PAGE_SIZE_STORAGE_KEY = "coa-ladder-page-size"
+
+export function readStoredPageSize(): number {
+  try {
+    const stored = Number(window.localStorage.getItem(PAGE_SIZE_STORAGE_KEY))
+    return PAGE_SIZES.some((size) => size === stored) ? stored : DEFAULT_PAGE_SIZE
+  } catch {
+    return DEFAULT_PAGE_SIZE
+  }
+}
+
+export function storePageSize(pageSize: number) {
+  try {
+    window.localStorage.setItem(PAGE_SIZE_STORAGE_KEY, String(pageSize))
+  } catch {
+    // Storage may be unavailable in privacy modes; the in-memory preference still works.
+  }
+}
 
 interface TablePaginationProps {
   pageIndex: number

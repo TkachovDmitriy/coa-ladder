@@ -1,5 +1,4 @@
-export { useLiveStreams } from "./application/use-live-streams.hook"
-export { STREAMERS, TWITCH_STATUS_URL } from "./model/streamers.constants"
-export type { LiveStream, Streamer } from "./model/streamer.type"
+export { STREAMERS } from "./model/streamers.constants"
+export type { Streamer } from "./model/streamer.type"
 export { StreamerLink } from "./ui"
-export { findStreamer, uniqueTwitchChannels } from "./utils/streamers.utils"
+export { findStreamer } from "./utils/streamers.utils"
