@@ -1,11 +1,46 @@
 import { TRACKED_PLAYERS_FILE } from "./pipeline.constants"
 import type {
   Bracket,
+  HistoryFile,
   LadderEntry,
   PreviouslyRankedEntry,
   TrackedPlayer,
   TrackedPlayersFile,
 } from "./pipeline.type"
+
+/** Bootstrap the durable registry from retained snapshots on the first deployment. */
+export function seedTrackedPlayersFromHistory(tracked: TrackedPlayersFile, history: HistoryFile): void {
+  const snapshots = [...history.snapshots].sort((a, b) => a.capturedAt.localeCompare(b.capturedAt))
+
+  for (const snapshot of snapshots) {
+    for (const [realmId, brackets] of Object.entries(snapshot.realms)) {
+      const realm = (tracked.realms[realmId] ??= {} as Record<Bracket, Record<string, TrackedPlayer>>)
+      for (const [bracket, points] of Object.entries(brackets) as [Bracket, (typeof brackets)[Bracket]][]) {
+        const players = (realm[bracket] ??= {})
+        for (const [name, point] of Object.entries(points)) {
+          const previous = players[name]
+          if (previous && previous.lastSeenAt >= snapshot.capturedAt) {
+            if (snapshot.capturedAt < previous.firstSeenAt) previous.firstSeenAt = snapshot.capturedAt
+            continue
+          }
+          players[name] = {
+            place: point.place,
+            name,
+            rating: point.rating,
+            wins: point.wins,
+            losses: point.losses,
+            className: previous?.className ?? null,
+            spec: previous?.spec ?? null,
+            armoryRealm: previous?.armoryRealm ?? null,
+            hasArmory: previous?.hasArmory ?? false,
+            firstSeenAt: previous?.firstSeenAt ?? snapshot.capturedAt,
+            lastSeenAt: snapshot.capturedAt,
+          }
+        }
+      }
+    }
+  }
+}
 
 export async function loadTrackedPlayers(): Promise<TrackedPlayersFile> {
   const file = Bun.file(TRACKED_PLAYERS_FILE)

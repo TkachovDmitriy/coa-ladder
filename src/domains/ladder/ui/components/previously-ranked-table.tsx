@@ -1,11 +1,12 @@
 import { Search } from "lucide-react"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { ClassIcon } from "@/shared/components/class-icon"
 import { Input } from "@/shared/components/ui/input"
 import { classColor } from "@/shared/constants/classes.constants"
 
 import type { PreviouslyRankedEntry } from "../../model/ladder.type"
+import { TablePagination } from "./table-pagination"
 
 const dateTime = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" })
 
@@ -16,12 +17,24 @@ interface PreviouslyRankedTableProps {
 
 export function PreviouslyRankedTable({ entries, currentCutoff }: PreviouslyRankedTableProps) {
   const [search, setSearch] = useState("")
+  const [pageIndex, setPageIndex] = useState(0)
+  const [pageSize, setPageSize] = useState(25)
   const visible = useMemo(() => {
     const query = search.trim().toLowerCase()
     return [...entries]
       .filter((entry) => !query || entry.name.toLowerCase().includes(query))
       .sort((a, b) => b.rating - a.rating || b.lastSeenAt.localeCompare(a.lastSeenAt))
   }, [entries, search])
+  const pageCount = Math.max(1, Math.ceil(visible.length / pageSize))
+  const pageEntries = visible.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize)
+
+  useEffect(() => {
+    setPageIndex(0)
+  }, [entries])
+
+  useEffect(() => {
+    if (pageIndex >= pageCount) setPageIndex(pageCount - 1)
+  }, [pageCount, pageIndex])
 
   if (entries.length === 0) return null
 
@@ -47,7 +60,10 @@ export function PreviouslyRankedTable({ entries, currentCutoff }: PreviouslyRank
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
           <Input
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => {
+              setSearch(event.target.value)
+              setPageIndex(0)
+            }}
             placeholder="Search tracked players"
             aria-label="Search previously ranked players"
             className="pl-9"
@@ -66,7 +82,7 @@ export function PreviouslyRankedTable({ entries, currentCutoff }: PreviouslyRank
               </tr>
             </thead>
             <tbody>
-              {visible.map((entry) => (
+              {pageEntries.map((entry) => (
                 <tr key={entry.name} className="border-b border-border/50 last:border-0 hover:bg-secondary/30">
                   <td className="px-3 py-2"><ClassIcon name={entry.className} size={36} /></td>
                   <td className="px-3 py-2 font-medium">{entry.name}</td>
@@ -84,6 +100,16 @@ export function PreviouslyRankedTable({ entries, currentCutoff }: PreviouslyRank
             </tbody>
           </table>
         </div>
+        <TablePagination
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          totalItems={visible.length}
+          onPageIndexChange={setPageIndex}
+          onPageSizeChange={(size) => {
+            setPageSize(size)
+            setPageIndex(0)
+          }}
+        />
       </div>
     </details>
   )

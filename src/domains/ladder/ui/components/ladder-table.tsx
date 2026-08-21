@@ -2,11 +2,13 @@ import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
+  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  type PaginationState,
   type SortingState,
 } from "@tanstack/react-table"
-import { useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { ArrowDown, ArrowUp, ChevronsUpDown, CircleHelp, Crown, Medal, ShieldQuestion, Swords } from "lucide-react"
 
 import { ClassIcon } from "@/shared/components/class-icon"
@@ -17,6 +19,7 @@ import { cn } from "@/shared/utils/utils"
 
 import type { LadderEntry } from "../../model/ladder.type"
 import { armoryUrl, winRate } from "../../utils/ladder.utils"
+import { TablePagination } from "./table-pagination"
 
 const percent = new Intl.NumberFormat("en-US", { style: "percent", maximumFractionDigits: 0 })
 const signedNumber = new Intl.NumberFormat("en-US", { signDisplay: "always" })
@@ -140,18 +143,30 @@ interface LadderTableProps {
 
 export function LadderTable({ entries, sorting, onSortingChange, realmId }: LadderTableProps) {
   const columns = useMemo(() => buildColumns(realmId), [realmId])
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 25 })
+
+  useEffect(() => {
+    setPagination((current) => ({ ...current, pageIndex: 0 }))
+  }, [entries])
+
   const table = useReactTable({
     data: entries,
     columns,
-    state: { sorting },
-    onSortingChange: (updater) => onSortingChange(typeof updater === "function" ? updater(sorting) : updater),
+    state: { sorting, pagination },
+    onSortingChange: (updater) => {
+      setPagination((current) => ({ ...current, pageIndex: 0 }))
+      onSortingChange(typeof updater === "function" ? updater(sorting) : updater)
+    },
+    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   })
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-border">
-      <table className="w-full text-sm">
+    <div className="rounded-lg border border-border">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
         <thead>
           {table.getHeaderGroups().map((group) => (
             <tr key={group.id} className="border-b border-border bg-secondary/40">
@@ -196,7 +211,15 @@ export function LadderTable({ entries, sorting, onSortingChange, realmId }: Ladd
             </tr>
           ) : null}
         </tbody>
-      </table>
+        </table>
+      </div>
+      <TablePagination
+        pageIndex={pagination.pageIndex}
+        pageSize={pagination.pageSize}
+        totalItems={entries.length}
+        onPageIndexChange={(pageIndex) => table.setPageIndex(pageIndex)}
+        onPageSizeChange={(pageSize) => setPagination({ pageIndex: 0, pageSize })}
+      />
     </div>
   )
 }

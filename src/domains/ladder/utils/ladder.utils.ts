@@ -10,6 +10,12 @@ export function winRate(entry: LadderEntry): number {
   return total === 0 ? 0 : entry.wins / total
 }
 
+/** Lowest live rating, independent of the order returned by the upstream API. */
+export function ratingCutoff(entries: readonly LadderEntry[]): number | null {
+  if (entries.length === 0) return null
+  return Math.min(...entries.map((entry) => entry.rating))
+}
+
 /** Armory page by name + realm; fall back to the ladder's own realm id when the armory realm is unknown. */
 export function armoryUrl(entry: Pick<LadderEntry, "armoryRealm" | "name">, realmId: number): string {
   if (entry.armoryRealm) {
