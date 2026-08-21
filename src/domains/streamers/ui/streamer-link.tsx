@@ -1,4 +1,4 @@
-import { Radio } from "lucide-react"
+import { Twitch } from "lucide-react"
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip"
 
@@ -21,12 +21,19 @@ export function StreamerLink({ streamer, liveStream }: StreamerLinkProps) {
           target="_blank"
           rel="noreferrer"
           className={liveStream
-            ? "inline-flex items-center gap-1 rounded-full bg-red-500/15 px-1.5 py-0.5 text-[0.6875rem] font-bold uppercase tracking-wide text-red-600 hover:bg-red-500/25 dark:text-red-400"
-            : "inline-flex text-[#9146ff] transition-colors hover:text-[#772ce8]"}
+            ? "inline-flex h-7 items-center gap-1.5 rounded-full bg-[#9146ff]/15 px-2 text-[0.6875rem] font-bold uppercase tracking-wide text-[#9146ff] ring-1 ring-inset ring-[#9146ff]/25 transition-colors hover:bg-[#9146ff]/25"
+            : "inline-flex size-7 items-center justify-center rounded-md bg-secondary text-muted-foreground transition-colors hover:bg-[#9146ff]/15 hover:text-[#9146ff]"}
           aria-label={label}
         >
-          <Radio className={liveStream ? "size-3 animate-pulse" : "size-3.5"} aria-hidden="true" />
-          {liveStream ? "Live" : <span className="sr-only">Twitch</span>}
+          <Twitch className="size-4" aria-hidden="true" />
+          {liveStream ? (
+            <>
+              <span className="size-1.5 animate-pulse rounded-full bg-red-500" aria-hidden="true" />
+              Live
+            </>
+          ) : (
+            <span className="sr-only">Twitch</span>
+          )}
         </a>
       </TooltipTrigger>
       <TooltipContent>

@@ -18,7 +18,7 @@ interface PreviouslyRankedTableProps {
 export function PreviouslyRankedTable({ entries, currentCutoff }: PreviouslyRankedTableProps) {
   const [search, setSearch] = useState("")
   const [pageIndex, setPageIndex] = useState(0)
-  const [pageSize, setPageSize] = useState(25)
+  const [pageSize, setPageSize] = useState(10)
   const visible = useMemo(() => {
     const query = search.trim().toLowerCase()
     return [...entries]
