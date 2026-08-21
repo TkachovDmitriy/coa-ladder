@@ -27,7 +27,12 @@ import type {
   LadderEntry,
   RealmLadder,
 } from "./lib/pipeline.type"
-import { loadTrackedPlayers, saveTrackedPlayers, updateTrackedBracket } from "./lib/tracked-players.utils"
+import {
+  loadTrackedPlayers,
+  saveTrackedPlayers,
+  seedTrackedPlayersFromHistory,
+  updateTrackedBracket,
+} from "./lib/tracked-players.utils"
 
 function toEntry(e: EnrichedEntry, prevPoint: HistoryPoint | undefined): LadderEntry {
   // Guards against cached history snapshots from before wins/losses were
@@ -53,6 +58,9 @@ function toEntry(e: EnrichedEntry, prevPoint: HistoryPoint | undefined): LadderE
 const generatedAt = new Date().toISOString()
 const history = await loadHistory()
 const trackedPlayers = await loadTrackedPlayers()
+// History import is a one-time migration for deployments created before the
+// durable registry existed. Normal twice-daily refreshes skip this traversal.
+if (Object.keys(trackedPlayers.realms).length === 0) seedTrackedPlayersFromHistory(trackedPlayers, history)
 const previousSnapshot = findPreviousSnapshot(history, generatedAt, CHANGE_WINDOW_MS, MIN_SNAPSHOT_GAP_MS)
 
 const realms: RealmLadder[] = []

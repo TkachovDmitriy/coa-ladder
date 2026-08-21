@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test"
 
 import type { LadderEntry, TrackedPlayersFile } from "./pipeline.type"
-import { updateTrackedBracket } from "./tracked-players.utils"
+import { seedTrackedPlayersFromHistory, updateTrackedBracket } from "./tracked-players.utils"
 
 const entry = (name: string, rating: number): LadderEntry => ({
   place: 100,
@@ -43,6 +43,32 @@ describe("updateTrackedBracket", () => {
       rating: 1600,
       firstSeenAt: "2026-08-19T00:00:00.000Z",
       lastSeenAt: "2026-08-21T00:00:00.000Z",
+    })
+  })
+})
+
+describe("seedTrackedPlayersFromHistory", () => {
+  test("restores a player missing from the current ladder using their latest historical point", () => {
+    const tracked: TrackedPlayersFile = { realms: {} }
+    seedTrackedPlayersFromHistory(tracked, {
+      snapshots: [
+        {
+          capturedAt: "2026-08-19T00:00:00.000Z",
+          realms: { "40": { "1v1": { Historical: { rating: 1450, place: 99, wins: 8, losses: 4 } }, "2v2": {}, "3v3": {} } },
+        },
+        {
+          capturedAt: "2026-08-20T00:00:00.000Z",
+          realms: { "40": { "1v1": { Historical: { rating: 1510, place: 96, wins: 10, losses: 4 } }, "2v2": {}, "3v3": {} } },
+        },
+      ],
+    })
+
+    const restored = tracked.realms["40"]["1v1"].Historical
+    expect(restored).toMatchObject({
+      rating: 1510,
+      place: 96,
+      firstSeenAt: "2026-08-19T00:00:00.000Z",
+      lastSeenAt: "2026-08-20T00:00:00.000Z",
     })
   })
 })

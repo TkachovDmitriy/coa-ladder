@@ -5,6 +5,7 @@ import { useEffect } from "react"
 import { useLadder } from "@/domains/ladder/application/use-ladder.hook"
 import type { LadderSearchParams } from "@/domains/ladder/model/ladder-search.type"
 import { fromSortingState, toSortingState } from "@/domains/ladder/utils/ladder-search.utils"
+import { ratingCutoff } from "@/domains/ladder/utils/ladder.utils"
 import { LadderTable, LadderToolbar, PreviouslyRankedTable, StatTiles } from "@/domains/ladder/ui"
 import { Stats } from "@/domains/stats/ui"
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card"
@@ -57,7 +58,7 @@ export function LadderPage() {
 
       <PreviouslyRankedTable
         entries={ladder.previouslyRankedEntries}
-        currentCutoff={ladder.bracketEntries.at(-1)?.rating ?? null}
+        currentCutoff={ratingCutoff(ladder.bracketEntries)}
       />
     </div>
   )
