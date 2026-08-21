@@ -1,4 +1,4 @@
-import { Search } from "lucide-react"
+import { ChevronDown, Ghost, Search } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
 import { ClassIcon } from "@/shared/components/class-icon"
@@ -39,19 +39,24 @@ export function PreviouslyRankedTable({ entries, currentCutoff }: PreviouslyRank
   if (entries.length === 0) return null
 
   return (
-    <details className="group rounded-lg border border-border bg-card">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:hidden">
-        <div>
-          <h2 className="font-semibold">Previously ranked</h2>
-          <p className="text-sm text-muted-foreground">
-            {entries.length} tracked {entries.length === 1 ? "player" : "players"} outside the current top 100
-          </p>
+    <details className="group overflow-hidden rounded-xl border border-dashed border-border bg-card/60 shadow-sm open:border-solid open:bg-card">
+      <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-4 marker:hidden transition-colors hover:bg-secondary/30 sm:px-5">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-secondary text-muted-foreground transition-colors group-open:bg-primary/10 group-open:text-primary">
+          <Ghost className="size-5" aria-hidden="true" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <h2 className="font-semibold">Hall of Fallen Heroes</h2>
+            <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-muted-foreground tabular">
+              {entries.length}
+            </span>
+          </div>
+          <p className="text-sm text-muted-foreground">Once top 100. Now waiting for the comeback arc.</p>
         </div>
-        <span className="text-sm text-muted-foreground group-open:hidden">Show</span>
-        <span className="hidden text-sm text-muted-foreground group-open:inline">Hide</span>
+        <ChevronDown className="size-5 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
       </summary>
 
-      <div className="space-y-3 border-t border-border p-4">
+      <div className="space-y-3 border-t border-border p-4 sm:p-5">
         <p className="text-sm text-muted-foreground">
           Ratings and records are last known values, not live data.
           {currentCutoff === null ? null : ` A missing player's current rating may be at or below the top-100 cutoff of ${currentCutoff.toLocaleString()}.`}
