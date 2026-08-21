@@ -11,5 +11,3 @@ export const STREAMERS: readonly Streamer[] = [
     twitchChannel: "arkaviun",
   },
 ]
-
-export const TWITCH_STATUS_URL = import.meta.env.VITE_TWITCH_STATUS_URL?.trim() ?? ""
