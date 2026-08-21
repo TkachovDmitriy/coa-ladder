@@ -1,5 +1,6 @@
 import { TRACKED_PLAYERS_FILE } from "./pipeline.constants"
 import type {
+  CacheHit,
   Bracket,
   HistoryFile,
   LadderEntry,
@@ -7,6 +8,13 @@ import type {
   TrackedPlayer,
   TrackedPlayersFile,
 } from "./pipeline.type"
+
+export function applyArmoryHit(player: TrackedPlayer, hit: CacheHit): void {
+  player.className = hit.class ?? player.className
+  player.spec = hit.spec ?? player.spec
+  player.armoryRealm = hit.realm ?? player.armoryRealm
+  player.hasArmory = hit.status === "resolved" || player.hasArmory
+}
 
 /** Bootstrap the durable registry from retained snapshots on the first deployment. */
 export function seedTrackedPlayersFromHistory(tracked: TrackedPlayersFile, history: HistoryFile): void {
