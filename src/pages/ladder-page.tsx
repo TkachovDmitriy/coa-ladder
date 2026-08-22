@@ -22,7 +22,7 @@ export function LadderPage() {
   const ladder = useLadder(bracket, search)
   const { state } = ladder
 
-  useDocumentMeta(bracket, ladder.realmName)
+  useDocumentMeta(bracket)
 
   const updateSearch = (patch: Partial<LadderSearchParams>) => {
     void navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true })
@@ -64,11 +64,12 @@ export function LadderPage() {
   )
 }
 
-/** Keep the tab title/description in sync with the active bracket for SPA navigation. */
-function useDocumentMeta(bracket: Bracket, realmName: string) {
+/** Keep document metadata and the bracket-specific canonical URL current during SPA navigation. */
+function useDocumentMeta(bracket: Bracket) {
   useEffect(() => {
-    const title = `CoA Arena ${bracket} Ladder — ${realmName} (Realm 40)`
-    const pageDescription = `Live ${bracket} arena ladder for Conquest of Azeroth realm 40 (${realmName}): player ratings, class distribution and armory links.`
+    const title = "CoA Arena Ladder — 1v1, 2v2 & 3v3"
+    const pageDescription =
+      "Explore Conquest of Azeroth arena PvP rankings, player ratings, win records, class statistics and armory links."
 
     document.title = title
 
@@ -100,8 +101,7 @@ function useDocumentMeta(bracket: Bracket, realmName: string) {
             "@id": "https://tkachovdmitriy.github.io/coa-ladder/#website",
             url: "https://tkachovdmitriy.github.io/coa-ladder/",
             name: "CoA Arena Ladder",
-            description:
-              "CoA Arena Ladder tracks Conquest of Azeroth realm 40 PvP rankings for 1v1, 2v2 and 3v3, with player ratings, class statistics and armory links.",
+            description: pageDescription,
             inLanguage: "en",
           },
           {
@@ -116,7 +116,7 @@ function useDocumentMeta(bracket: Bracket, realmName: string) {
         ],
       })
     }
-  }, [bracket, realmName])
+  }, [bracket])
 }
 
 /**

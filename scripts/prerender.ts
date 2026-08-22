@@ -15,8 +15,9 @@ const DIST_DIR = join(import.meta.dir, "..", "dist")
 const SITE_URL = "https://tkachovdmitriy.github.io/coa-ladder"
 const DEFAULT_REALM_ID = 40
 const TOP_N = 50
+const SITE_TITLE = "CoA Arena Ladder — 1v1, 2v2 & 3v3"
 const SITE_DESCRIPTION =
-  "CoA Arena Ladder tracks Conquest of Azeroth realm 40 PvP rankings for 1v1, 2v2 and 3v3, with player ratings, class statistics and armory links."
+  "Explore Conquest of Azeroth arena PvP rankings, player ratings, win records, class statistics and armory links."
 
 type Bracket = "1v1" | "2v2" | "3v3"
 
@@ -81,8 +82,9 @@ function renderPage(
   generatedAt: string,
   canonical = `${SITE_URL}/${bracket}/`,
 ): string {
-  const title = `CoA Arena ${bracket} Ladder — ${realmName} (Realm 40)`
-  const description = `Live ${bracket} arena ladder for Conquest of Azeroth realm 40 (${realmName}): top ${Math.min(TOP_N, entries.length)} players by rating, class and win rate.`
+  const title = SITE_TITLE
+  const description = SITE_DESCRIPTION
+  const heading = `CoA Arena ${bracket} Ladder — ${realmName}`
   const escapedTitle = escapeHtml(title)
   const escapedDescription = escapeHtml(description)
   const structuredData = JSON.stringify({
@@ -132,12 +134,45 @@ function renderPage(
         #root th, #root td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid hsl(var(--border)); color: hsl(var(--foreground)); }
         #root th { color: hsl(var(--muted-foreground)); font-weight: 500; }
       </style>
-      <h1>${escapeHtml(title)}</h1>
+      <h1>${escapeHtml(heading)}</h1>
       <p>${escapeHtml(SITE_DESCRIPTION)}</p>
       <p>Data updated ${new Date(generatedAt).toUTCString()}</p>
       ${renderTable(entries)}
     </main></div>`,
     )
+}
+
+function renderPrivacyPage(template: string): string {
+  const canonical = `${SITE_URL}/privacy/`
+  const title = "Privacy & Disclaimer — CoA Arena Ladder"
+  const description =
+    "Privacy information and legal disclaimer for the community-run Conquest of Azeroth Arena Ladder."
+  const escapedTitle = escapeHtml(title)
+  const escapedDescription = escapeHtml(description)
+  const structuredData = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${canonical}#webpage`,
+    url: canonical,
+    name: title,
+    description,
+    isPartOf: { "@id": `${SITE_URL}/#website` },
+    inLanguage: "en",
+  }).replace(/</g, "\\u003c")
+
+  return template
+    .replace(/<title>.*?<\/title>/, `<title>${escapedTitle}</title>`)
+    .replace(/<meta\s+name="description"[\s\S]*?\/>/, `<meta name="description" content="${escapedDescription}" />`)
+    .replace(/<meta\s+property="og:title"[\s\S]*?\/>/, `<meta property="og:title" content="${escapedTitle}" />`)
+    .replace(/<meta\s+property="og:description"[\s\S]*?\/>/, `<meta property="og:description" content="${escapedDescription}" />`)
+    .replace(/<meta\s+property="og:url"[\s\S]*?\/>/, `<meta property="og:url" content="${canonical}" />`)
+    .replace(/<meta\s+name="twitter:title"[\s\S]*?\/>/, `<meta name="twitter:title" content="${escapedTitle}" />`)
+    .replace(/<meta\s+name="twitter:description"[\s\S]*?\/>/, `<meta name="twitter:description" content="${escapedDescription}" />`)
+    .replace(
+      /<script\s+id="structured-data"\s+type="application\/ld\+json">[\s\S]*?<\/script>/,
+      `<script id="structured-data" type="application/ld+json">${structuredData}</script>`,
+    )
+    .replace("</head>", `    <link rel="canonical" href="${canonical}" />\n  </head>`)
 }
 
 const template = await Bun.file(join(DIST_DIR, "index.html")).text()
@@ -162,4 +197,6 @@ for (const bracket of BRACKETS) {
   }
 }
 
-console.log(`Prerendered ${BRACKETS.join(", ")} into ${DIST_DIR}/`)
+await Bun.write(join(DIST_DIR, "privacy", "index.html"), renderPrivacyPage(template))
+
+console.log(`Prerendered ${BRACKETS.join(", ")} and privacy into ${DIST_DIR}/`)
