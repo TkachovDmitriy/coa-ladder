@@ -1,5 +1,5 @@
 import { Outlet } from "@tanstack/react-router"
-import { Coffee, Github } from "lucide-react"
+import { Github } from "lucide-react"
 
 import { useLadderStore } from "@/domains/ladder/application/ladder.store"
 import { BracketTabs, RealmTabs } from "@/domains/ladder/ui"
@@ -23,16 +23,6 @@ export function RootLayout() {
                 <a href="https://github.com/TkachovDmitriy" target="_blank" rel="noopener noreferrer">
                   <Github className="size-4" aria-hidden="true" />
                   GitHub
-                </a>
-              </Button>
-              <Button
-                asChild
-                className="bg-[#bb73f5] text-white hover:bg-[#a95ee8]"
-                size="sm"
-              >
-                <a href="https://ko-fi.com/F0B325BP3P" target="_blank" rel="noopener noreferrer">
-                  <Coffee className="size-4" aria-hidden="true" />
-                  Support me on Ko-fi
                 </a>
               </Button>
               <ThemeToggle />
