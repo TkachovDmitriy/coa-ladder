@@ -1,13 +1,13 @@
 import { Outlet } from "@tanstack/react-router"
+import { Coffee, Github } from "lucide-react"
 
 import { useLadderStore } from "@/domains/ladder/application/ladder.store"
 import { BracketTabs, RealmTabs } from "@/domains/ladder/ui"
 import { ThemeToggle } from "@/presentation/theme/theme-toggle"
-import { realmName } from "@/shared/constants/realms.constants"
+import { Button } from "@/shared/components/ui/button"
 
 export function RootLayout() {
   const state = useLadderStore((s) => s.data)
-  const realmId = useLadderStore((s) => s.realmId)
   const generatedAt = state.status === "success" ? state.dataset.generatedAt : null
 
   return (
@@ -17,11 +17,26 @@ export function RootLayout() {
           <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-lg font-semibold tracking-tight">Conquest of Azeroth — Arena Ladder</h1>
-              <p className="text-sm text-muted-foreground">
-                {realmName(realmId)} realm · 1v1 / 2v2 / 3v3
-              </p>
             </div>
-            <ThemeToggle />
+            <div className="flex items-center gap-2 pt-2 md:pt-0">
+              <Button asChild size="sm" variant="outline">
+                <a href="https://github.com/TkachovDmitriy" target="_blank" rel="noopener noreferrer">
+                  <Github className="size-4" aria-hidden="true" />
+                  GitHub
+                </a>
+              </Button>
+              <Button
+                asChild
+                className="bg-[#bb73f5] text-white hover:bg-[#a95ee8]"
+                size="sm"
+              >
+                <a href="https://ko-fi.com/F0B325BP3P" target="_blank" rel="noopener noreferrer">
+                  <Coffee className="size-4" aria-hidden="true" />
+                  Support me on Ko-fi
+                </a>
+              </Button>
+              <ThemeToggle />
+            </div>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
