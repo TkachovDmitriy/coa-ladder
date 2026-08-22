@@ -9,7 +9,7 @@ import {
   type SortingState,
 } from "@tanstack/react-table"
 import { useEffect, useMemo, useState } from "react"
-import { ArrowDown, ArrowUp, ChevronsUpDown, CircleHelp, Crown, Medal, ShieldQuestion, Swords } from "lucide-react"
+import { ArrowDown, ArrowUp, CalendarDays, ChevronsUpDown, CircleHelp, Crown, Medal, ShieldQuestion, Swords } from "lucide-react"
 
 import { ClassIcon } from "@/shared/components/class-icon"
 import { findStreamer, STREAMERS, StreamerLink } from "@/domains/streamers"
@@ -99,10 +99,22 @@ function buildColumns(realmId: number) {
       cell: (c) => c.getValue() ?? <span className="text-muted-foreground">—</span>,
     }),
     columnHelper.display({
-      id: "armory",
-      header: () => <span className="sr-only">Armory</span>,
+      id: "actions",
+      header: () => <span className="sr-only">Player actions</span>,
       cell: ({ row }) => (
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span tabIndex={0} className="inline-block cursor-not-allowed">
+                <Button variant="outline" size="sm" className="gap-1.5 pointer-events-none" disabled>
+                  <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
+                  Weekly stats
+                  <span className="sr-only">for {row.original.name}</span>
+                </Button>
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>Weekly player statistics are coming soon.</TooltipContent>
+          </Tooltip>
           {row.original.spec ? (
             <Button asChild variant="outline" size="sm" className="gap-1.5">
               <a
