@@ -38,6 +38,10 @@ if (!isRecord(history) || !Array.isArray(history.snapshots))
   throw new Error("history.json must contain a snapshots array")
 if (history.snapshots.length > 96) throw new Error("history.json exceeds the 96-snapshot retention limit")
 
+const playerStats = await readJson("player-stats.json")
+if (!isRecord(playerStats) || typeof playerStats.generatedAt !== "string" || !Array.isArray(playerStats.realms))
+  throw new Error("player-stats.json must contain generatedAt and a realms array")
+
 const trackedPlayers = await readJson("tracked-players.json")
 if (!isRecord(trackedPlayers) || !isRecord(trackedPlayers.realms))
   throw new Error("tracked-players.json must contain a realms object")

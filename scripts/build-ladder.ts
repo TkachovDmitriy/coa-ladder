@@ -17,6 +17,8 @@ import {
   LADDER_JSON_OUT,
   MAX_HISTORY_SNAPSHOTS,
   MIN_SNAPSHOT_GAP_MS,
+  PLAYER_STATS_JSON_OUT,
+  PLAYER_STATS_WINDOW_MS,
   REALMS,
 } from "./lib/pipeline.constants"
 import type {
@@ -33,6 +35,7 @@ import {
   seedTrackedPlayersFromHistory,
   updateTrackedBracket,
 } from "./lib/tracked-players.utils"
+import { buildPlayerStatsDataset } from "./lib/player-stats.utils"
 
 function toEntry(e: EnrichedEntry, prevPoint: HistoryPoint | undefined): LadderEntry {
   // Guards against cached history snapshots from before wins/losses were
@@ -92,10 +95,20 @@ const dataset: LadderDataset = { generatedAt, realms }
 await Bun.write(LADDER_JSON_OUT, JSON.stringify(dataset))
 
 const snapshot = buildSnapshot(realms, generatedAt)
-await saveHistory(appendSnapshot(history, snapshot, MAX_HISTORY_SNAPSHOTS, MIN_SNAPSHOT_GAP_MS))
+const updatedHistory = appendSnapshot(history, snapshot, MAX_HISTORY_SNAPSHOTS, MIN_SNAPSHOT_GAP_MS)
+const playerStats = buildPlayerStatsDataset(
+  updatedHistory,
+  generatedAt,
+  PLAYER_STATS_WINDOW_MS,
+  REALMS.map((realm) => realm.id),
+  BRACKETS.map((bracket) => bracket.id),
+)
+await Bun.write(PLAYER_STATS_JSON_OUT, JSON.stringify(playerStats))
+await saveHistory(updatedHistory)
 await saveTrackedPlayers(trackedPlayers)
 
 console.log(`Wrote ${LADDER_JSON_OUT}`)
+console.log(`Wrote ${PLAYER_STATS_JSON_OUT}`)
 for (const realm of realms) {
   const counts = BRACKETS.map((b) => `${b.id}:${realm.brackets[b.id].length}`).join("  ")
   console.log(`  realm ${realm.id} (${realm.name})  ${counts}`)

@@ -143,6 +143,10 @@ function renderPage(
 const template = await Bun.file(join(DIST_DIR, "index.html")).text()
 const dataset: LadderDataset = await Bun.file(join(DIST_DIR, "ladder.json")).json()
 
+// GitHub Pages serves this SPA fallback for dynamic player-stat URLs that
+// cannot be enumerated at build time (players enter and leave the ladder).
+await Bun.write(join(DIST_DIR, "404.html"), template)
+
 const realm = dataset.realms.find((r) => r.id === DEFAULT_REALM_ID)
 if (!realm) throw new Error(`Realm ${DEFAULT_REALM_ID} missing from dist/ladder.json`)
 

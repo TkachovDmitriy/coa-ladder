@@ -1,21 +1,22 @@
-import { getRouteApi } from "@tanstack/react-router"
+import { useNavigate, useParams } from "@tanstack/react-router"
 
 import { useLadderStore } from "@/domains/ladder/application/ladder.store"
 import { DEFAULT_LADDER_SEARCH } from "@/domains/ladder/utils/ladder-search.utils"
+import { DEFAULT_BRACKET, isBracket } from "@/shared/constants/brackets.constants"
 import { REALMS } from "@/shared/constants/realms.constants"
 import { cn } from "@/shared/utils/utils"
-
-const route = getRouteApi("/$bracket")
 
 /** Realm switcher — store-driven (realm is a UI selection, not a route). Resets filters: class/spec rosters differ between realms. */
 export function RealmTabs() {
   const realmId = useLadderStore((s) => s.realmId)
   const setRealm = useLadderStore((s) => s.setRealm)
-  const navigate = route.useNavigate()
+  const navigate = useNavigate()
+  const params = useParams({ strict: false }) as { bracket?: string }
+  const bracket = params.bracket && isBracket(params.bracket) ? params.bracket : DEFAULT_BRACKET
 
   const handleSelect = (id: typeof realmId) => {
     setRealm(id)
-    void navigate({ search: DEFAULT_LADDER_SEARCH, replace: true })
+    void navigate({ to: "/$bracket", params: { bracket }, search: DEFAULT_LADDER_SEARCH, replace: true })
   }
 
   return (

@@ -58,3 +58,7 @@ export const OVERRIDES_FILE = join(SCRIPTS_DIR, "overrides.json")
 
 /** Final trimmed dataset served by the app (the only public file). */
 export const LADDER_JSON_OUT = join(SCRIPTS_DIR, "..", "public", "ladder.json")
+/** Compact player history served to the statistics page. */
+export const PLAYER_STATS_JSON_OUT = join(SCRIPTS_DIR, "..", "public", "player-stats.json")
+/** The public player view covers the same rolling period retained by the pipeline. */
+export const PLAYER_STATS_WINDOW_MS = 8 * 24 * 60 * 60 * 1000

@@ -8,6 +8,7 @@ import {
   type PaginationState,
   type SortingState,
 } from "@tanstack/react-table"
+import { Link } from "@tanstack/react-router"
 import { useEffect, useMemo, useState } from "react"
 import { ArrowDown, ArrowUp, CalendarDays, ChevronsUpDown, CircleHelp, Crown, Medal, ShieldQuestion, Swords } from "lucide-react"
 
@@ -17,6 +18,7 @@ import { classColor } from "@/shared/constants/classes.constants"
 import { Button } from "@/shared/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip"
 import { cn } from "@/shared/utils/utils"
+import type { Bracket } from "@/shared/constants/brackets.constants"
 
 import type { LadderEntry } from "../../model/ladder.type"
 import { armoryUrl, winRate } from "../../utils/ladder.utils"
@@ -26,7 +28,7 @@ const percent = new Intl.NumberFormat("en-US", { style: "percent", maximumFracti
 const signedNumber = new Intl.NumberFormat("en-US", { signDisplay: "always" })
 const columnHelper = createColumnHelper<LadderEntry>()
 
-function buildColumns(realmId: number) {
+function buildColumns(realmId: number, bracket: Bracket) {
   return [
     columnHelper.display({
       id: "classIcon",
@@ -103,18 +105,16 @@ function buildColumns(realmId: number) {
       header: () => <span className="sr-only">Player actions</span>,
       cell: ({ row }) => (
         <div className="flex justify-end gap-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span tabIndex={0} className="inline-block cursor-not-allowed">
-                <Button variant="outline" size="sm" className="gap-1.5 pointer-events-none" disabled>
-                  <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
-                  Weekly stats
-                  <span className="sr-only">for {row.original.name}</span>
-                </Button>
-              </span>
-            </TooltipTrigger>
-            <TooltipContent>Weekly player statistics are coming soon.</TooltipContent>
-          </Tooltip>
+          <Button asChild variant="outline" size="sm" className="gap-1.5">
+            <Link
+              to="/$bracket/player/$realmId/$player"
+              params={{ bracket, realmId: String(realmId), player: row.original.name }}
+            >
+              <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
+              8-day stats
+              <span className="sr-only">for {row.original.name}</span>
+            </Link>
+          </Button>
           {row.original.spec ? (
             <Button asChild variant="outline" size="sm" className="gap-1.5">
               <a
@@ -156,10 +156,11 @@ interface LadderTableProps {
   sorting: SortingState
   onSortingChange: (sorting: SortingState) => void
   realmId: number
+  bracket: Bracket
 }
 
-export function LadderTable({ entries, sorting, onSortingChange, realmId }: LadderTableProps) {
-  const columns = useMemo(() => buildColumns(realmId), [realmId])
+export function LadderTable({ entries, sorting, onSortingChange, realmId, bracket }: LadderTableProps) {
+  const columns = useMemo(() => buildColumns(realmId, bracket), [realmId, bracket])
   const [pagination, setPagination] = useState<PaginationState>(() => ({ pageIndex: 0, pageSize: readStoredPageSize() }))
 
   useEffect(() => {

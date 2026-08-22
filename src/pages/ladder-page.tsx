@@ -53,6 +53,7 @@ export function LadderPage() {
           sorting={toSortingState(search)}
           onSortingChange={(sorting: SortingState) => updateSearch(fromSortingState(sorting))}
           realmId={ladder.realmId}
+          bracket={bracket}
         />
       </section>
 

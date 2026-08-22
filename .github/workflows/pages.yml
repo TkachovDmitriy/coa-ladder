@@ -38,6 +38,9 @@ jobs:
         run: |
           git fetch origin ladder-data
           git show origin/ladder-data:ladder.json > public/ladder.json
+          if git cat-file -e origin/ladder-data:player-stats.json 2>/dev/null; then
+            git show origin/ladder-data:player-stats.json > public/player-stats.json
+          fi
 
       - name: Build static site
         run: bun run build

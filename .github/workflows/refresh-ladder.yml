@@ -40,6 +40,9 @@ jobs:
         run: |
           if git fetch origin ladder-data; then
             git show origin/ladder-data:ladder.json > /tmp/previous-ladder.json
+            if git cat-file -e origin/ladder-data:player-stats.json 2>/dev/null; then
+              git show origin/ladder-data:player-stats.json > /tmp/previous-player-stats.json
+            fi
             git show origin/ladder-data:history.json > scripts/cache/history.json
             if git cat-file -e origin/ladder-data:tracked-players.json 2>/dev/null; then
               git show origin/ladder-data:tracked-players.json > scripts/cache/tracked-players.json
@@ -68,8 +71,9 @@ jobs:
       - name: Detect public ladder changes
         id: public-data
         run: |
-          if [[ -f /tmp/previous-ladder.json ]] && \
-             diff -q <(jq -S 'del(.generatedAt)' /tmp/previous-ladder.json) <(jq -S 'del(.generatedAt)' public/ladder.json) >/dev/null; then
+          if [[ -f /tmp/previous-ladder.json ]] && [[ -f /tmp/previous-player-stats.json ]] && \
+             diff -q <(jq -S 'del(.generatedAt)' /tmp/previous-ladder.json) <(jq -S 'del(.generatedAt)' public/ladder.json) >/dev/null && \
+             diff -q <(jq -S 'del(.generatedAt)' /tmp/previous-player-stats.json) <(jq -S 'del(.generatedAt)' public/player-stats.json) >/dev/null; then
             echo 'changed=false' >> "$GITHUB_OUTPUT"
           else
             echo 'changed=true' >> "$GITHUB_OUTPUT"
@@ -88,11 +92,12 @@ jobs:
           fi
 
           cp public/ladder.json "$DATA_WORKTREE/ladder.json"
+          cp public/player-stats.json "$DATA_WORKTREE/player-stats.json"
           cp scripts/cache/history.json "$DATA_WORKTREE/history.json"
           cp scripts/cache/tracked-players.json "$DATA_WORKTREE/tracked-players.json"
           cp scripts/cache/armory.json "$DATA_WORKTREE/armory.json"
           bun scripts/validate-ladder-data.ts "$DATA_WORKTREE"
-          git -C "$DATA_WORKTREE" add ladder.json history.json tracked-players.json armory.json
+          git -C "$DATA_WORKTREE" add ladder.json player-stats.json history.json tracked-players.json armory.json
 
           if git -C "$DATA_WORKTREE" diff --cached --quiet; then
             echo 'Ladder data is unchanged.'
