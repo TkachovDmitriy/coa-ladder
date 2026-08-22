@@ -10,4 +10,9 @@ export const STREAMERS: readonly Streamer[] = [
     characterName: "Notarkaviun",
     twitchChannel: "arkaviun",
   },
+  {
+    realmId: 40, // Vol'Jin
+    characterName: "Nidlich",
+    twitchChannel: "nidlich",
+  },
 ]
