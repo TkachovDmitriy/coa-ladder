@@ -25,6 +25,14 @@ bun run data:refresh
 bun run build
 ```
 
+## Twitch live status
+
+The ladder can display live status for the streamers listed in
+`src/domains/streamers/model/streamers.constants.ts`. The static site reads
+that status from the optional Cloudflare Worker in `worker/`; Twitch secrets
+never enter the frontend bundle. See [`worker/README.md`](worker/README.md) for
+configuration and deployment.
+
 ## Rights
 
 Copyright © 2026 Dmytro Tkachov. All rights reserved. See [LICENSE](LICENSE).

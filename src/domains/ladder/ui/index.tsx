@@ -1,6 +1,6 @@
 export { BracketTabs } from "./components/bracket-tabs"
+export { LadderLeader } from "./components/ladder-leader"
 export { LadderTable } from "./components/ladder-table"
 export { LadderToolbar } from "./components/ladder-toolbar"
 export { PreviouslyRankedTable } from "./components/previously-ranked-table"
 export { RealmTabs } from "./components/realm-tabs"
-export { StatTiles } from "./components/stat-tiles"

@@ -6,8 +6,9 @@ import { useLadder } from "@/domains/ladder/application/use-ladder.hook"
 import type { LadderSearchParams } from "@/domains/ladder/model/ladder-search.type"
 import { fromSortingState, toSortingState } from "@/domains/ladder/utils/ladder-search.utils"
 import { ratingCutoff } from "@/domains/ladder/utils/ladder.utils"
-import { LadderTable, LadderToolbar, PreviouslyRankedTable, StatTiles } from "@/domains/ladder/ui"
+import { LadderLeader, LadderTable, LadderToolbar, PreviouslyRankedTable } from "@/domains/ladder/ui"
 import { Stats } from "@/domains/stats/ui"
+import { StreamersPanel } from "@/domains/streamers"
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card"
 import { Skeleton } from "@/shared/components/ui/skeleton"
 import type { Bracket } from "@/shared/constants/brackets.constants"
@@ -33,7 +34,8 @@ export function LadderPage() {
 
   return (
     <div className="space-y-6">
-      <StatTiles entries={ladder.bracketEntries} />
+      <LadderLeader entries={ladder.bracketEntries} />
+      <StreamersPanel entries={ladder.bracketEntries} realmId={ladder.realmId} />
       <Stats entries={ladder.bracketEntries} />
 
       <section className="space-y-3">
@@ -141,18 +143,18 @@ function LadderSkeleton() {
             <Skeleton className="hidden h-10 w-16 shrink-0 sm:block" />
           </CardContent>
         </Card>
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {Array.from({ length: 4 }, (_, i) => (
-            <Card key={i}>
-              <CardContent className="space-y-2 p-4">
-                <Skeleton className="h-3 w-20" />
-                <Skeleton className="h-6 w-16" />
-                <Skeleton className="h-3 w-14" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
       </div>
+
+      <Card>
+        <CardHeader className="space-y-2 p-4 sm:px-5">
+          <Skeleton className="h-5 w-28" />
+          <Skeleton className="h-3 w-48" />
+        </CardHeader>
+        <CardContent className="grid gap-2 p-4 pt-0 sm:grid-cols-2 sm:px-5">
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-16 w-full" />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 space-y-0">
