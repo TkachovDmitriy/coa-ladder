@@ -66,6 +66,15 @@ export function PrivacyPage() {
       </section>
 
       <section className="space-y-3">
+        <h3 className="text-lg font-semibold">Streamer links</h3>
+        <p>
+          A Twitch channel is linked to an in-game character only after the channel owner agrees to be listed during
+          a direct discussion with the site operator. The owner may request that the link be corrected or removed at
+          any time through the contact method below.
+        </p>
+      </section>
+
+      <section className="space-y-3">
         <h3 className="text-lg font-semibold">Feedback survey</h3>
         <p>
           The optional feedback survey is provided by Tally. If you submit it, the site operator receives the answers
@@ -124,13 +133,13 @@ export function PrivacyPage() {
           privacy question through the project&apos;s{" "}
           <a
             className="font-medium text-primary underline-offset-4 hover:underline"
-            href="https://github.com/TkachovDmitriy/coa-ladder/issues"
+            href="https://discord.gg/wDDrm9E6vG"
             target="_blank"
             rel="noopener noreferrer"
           >
-            GitHub issue tracker
+            Discord server
           </a>
-          . Please do not post sensitive personal information in a public issue.
+          . Please use a private message when your request contains personal information.
         </p>
       </section>
 
