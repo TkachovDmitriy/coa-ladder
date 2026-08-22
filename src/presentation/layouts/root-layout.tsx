@@ -1,5 +1,5 @@
-import { Outlet } from "@tanstack/react-router"
-import { Github } from "lucide-react"
+import { Link, Outlet } from "@tanstack/react-router"
+import { Github, MessagesSquare } from "lucide-react"
 
 import { useLadderStore } from "@/domains/ladder/application/ladder.store"
 import { BracketTabs, RealmTabs } from "@/domains/ladder/ui"
@@ -19,6 +19,12 @@ export function RootLayout() {
               <h1 className="text-lg font-semibold tracking-tight">Conquest of Azeroth — Arena Ladder</h1>
             </div>
             <div className="flex items-center gap-2 pt-2 md:pt-0">
+              <Button asChild size="sm" variant="outline">
+                <a href="https://discord.gg/wDDrm9E6vG" target="_blank" rel="noopener noreferrer">
+                  <MessagesSquare className="size-4" aria-hidden="true" />
+                  Discord
+                </a>
+              </Button>
               <Button asChild size="sm" variant="outline">
                 <a href="https://github.com/TkachovDmitriy" target="_blank" rel="noopener noreferrer">
                   <Github className="size-4" aria-hidden="true" />
@@ -46,9 +52,14 @@ export function RootLayout() {
       </main>
 
       <footer className="border-t border-border/60">
-        <div className="container py-4 text-xs text-muted-foreground">
-          {generatedAt ? <>Data updated {new Date(generatedAt).toLocaleString()} · </> : null}
-          armory links open on ascensionlogs.gg · © 2026 Dmytro Tkachov. All rights reserved.
+        <div className="container flex flex-col gap-1 py-4 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            {generatedAt ? <>Data updated {new Date(generatedAt).toLocaleString()} · </> : null}
+            armory links open on ascensionlogs.gg · © 2026 Dmytro Tkachov. All rights reserved.
+          </div>
+          <Link className="w-fit underline-offset-4 hover:text-foreground hover:underline" to="/privacy">
+            Privacy & Disclaimer
+          </Link>
         </div>
       </footer>
     </div>
