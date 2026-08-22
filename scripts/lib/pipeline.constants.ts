@@ -52,8 +52,8 @@ export const TRACKED_PLAYERS_FILE = join(SCRIPTS_DIR, "cache", "tracked-players.
 export const MIN_SNAPSHOT_GAP_MS = 60 * 60 * 1000
 /** Target age for displayed rating and W/L changes; the closest eligible snapshot is used. */
 export const CHANGE_WINDOW_MS = 24 * 60 * 60 * 1000
-/** Refresh runs twice daily, so this covers roughly the same ~8-day window as before. */
-export const MAX_HISTORY_SNAPSHOTS = 16
+/** Refresh runs every two hours, so 96 snapshots retain roughly eight days. */
+export const MAX_HISTORY_SNAPSHOTS = 96
 export const OVERRIDES_FILE = join(SCRIPTS_DIR, "overrides.json")
 
 /** Final trimmed dataset served by the app (the only public file). */

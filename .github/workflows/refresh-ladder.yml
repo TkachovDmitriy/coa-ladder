@@ -2,9 +2,8 @@ name: Refresh ladder data and deploy
 
 on:
   schedule:
-    # Twice daily, 00:00 and 12:00 UTC.
-    - cron: "0 0 * * *"
-    - cron: "0 12 * * *"
+    # Every two hours, offset from the busy start of the hour.
+    - cron: "17 */2 * * *"
   workflow_dispatch:
 
 permissions:
@@ -40,9 +39,13 @@ jobs:
         id: ladder-data
         run: |
           if git fetch origin ladder-data; then
+            git show origin/ladder-data:ladder.json > /tmp/previous-ladder.json
             git show origin/ladder-data:history.json > scripts/cache/history.json
             if git cat-file -e origin/ladder-data:tracked-players.json 2>/dev/null; then
               git show origin/ladder-data:tracked-players.json > scripts/cache/tracked-players.json
+            fi
+            if git cat-file -e origin/ladder-data:armory.json 2>/dev/null; then
+              git show origin/ladder-data:armory.json > scripts/cache/armory.json
             fi
             echo 'exists=true' >> "$GITHUB_OUTPUT"
           else
@@ -62,11 +65,22 @@ jobs:
       - name: Refresh ladder data
         run: bun run data:refresh
 
+      - name: Detect public ladder changes
+        id: public-data
+        run: |
+          if [[ -f /tmp/previous-ladder.json ]] && \
+             diff -q <(jq -S 'del(.generatedAt)' /tmp/previous-ladder.json) <(jq -S 'del(.generatedAt)' public/ladder.json) >/dev/null; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Persist ladder data
         env:
           DATA_WORKTREE: /tmp/coa-ladder-data
         run: |
           if git show-ref --verify --quiet refs/remotes/origin/ladder-data; then
+            REMOTE_SHA=$(git rev-parse refs/remotes/origin/ladder-data)
             git worktree add --detach "$DATA_WORKTREE" origin/ladder-data
           else
             git worktree add --detach "$DATA_WORKTREE"
@@ -76,7 +90,9 @@ jobs:
           cp public/ladder.json "$DATA_WORKTREE/ladder.json"
           cp scripts/cache/history.json "$DATA_WORKTREE/history.json"
           cp scripts/cache/tracked-players.json "$DATA_WORKTREE/tracked-players.json"
-          git -C "$DATA_WORKTREE" add ladder.json history.json tracked-players.json
+          cp scripts/cache/armory.json "$DATA_WORKTREE/armory.json"
+          bun scripts/validate-ladder-data.ts "$DATA_WORKTREE"
+          git -C "$DATA_WORKTREE" add ladder.json history.json tracked-players.json armory.json
 
           if git -C "$DATA_WORKTREE" diff --cached --quiet; then
             echo 'Ladder data is unchanged.'
@@ -84,20 +100,37 @@ jobs:
             git -C "$DATA_WORKTREE" config user.name github-actions[bot]
             git -C "$DATA_WORKTREE" config user.email 41898282+github-actions[bot]@users.noreply.github.com
             git -C "$DATA_WORKTREE" commit -m "data: refresh ladder ${{ github.run_id }}"
-            git -C "$DATA_WORKTREE" push origin HEAD:ladder-data
+
+            # Keep 12 recovery checkpoints (about 24 hours at this cadence).
+            if [[ $(git -C "$DATA_WORKTREE" rev-list --count HEAD) -gt 12 ]]; then
+              OLDEST_KEPT=$(git -C "$DATA_WORKTREE" rev-parse HEAD~11)
+              BASELINE=$(git -C "$DATA_WORKTREE" commit-tree "$OLDEST_KEPT^{tree}" -m "data: retention baseline")
+              git -C "$DATA_WORKTREE" rebase --onto "$BASELINE" "$OLDEST_KEPT" HEAD
+            fi
+
+            if [[ -n "${REMOTE_SHA:-}" ]]; then
+              git -C "$DATA_WORKTREE" push \
+                --force-with-lease=refs/heads/ladder-data:"$REMOTE_SHA" origin HEAD:ladder-data
+            else
+              git -C "$DATA_WORKTREE" push origin HEAD:ladder-data
+            fi
           fi
 
       - name: Build static site
+        if: steps.public-data.outputs.changed == 'true'
         run: bun run build
 
       - name: Configure GitHub Pages
+        if: steps.public-data.outputs.changed == 'true'
         uses: actions/configure-pages@v6
 
       - name: Upload Pages artifact
+        if: steps.public-data.outputs.changed == 'true'
         uses: actions/upload-pages-artifact@v5
         with:
           path: dist
 
       - name: Deploy to GitHub Pages
+        if: steps.public-data.outputs.changed == 'true'
         id: deployment
         uses: actions/deploy-pages@v5
