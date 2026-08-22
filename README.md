@@ -7,9 +7,20 @@ not affect the published app.
 
 ## GitHub Pages deployment
 
-The workflow in `.github/workflows/pages.yml` builds and deploys the site on
-pushes to `main`, manually from the Actions tab, and every day at 03:17 UTC.
-It also commits changed ladder data back to the repository.
+The refresh workflow runs every two hours at 17 minutes past the hour, stores
+the generated files on the `ladder-data` branch, and deploys the site when the
+public ladder changes. The branch retains 12 recovery checkpoints (about 24
+hours), while `history.json` retains 96 snapshots (about eight days).
+
+The `Deploy GitHub Pages` workflow also builds and deploys the site on pushes
+to `main` or when started manually. It restores the latest durable ladder data
+before building, so code-only deployments cannot publish the stale copy from
+`main`.
+
+To recover from bad generated data, run the `Roll back ladder data` workflow
+from the Actions tab and supply the SHA of one of the retained `ladder-data`
+commits. The workflow validates the checkpoint, records the rollback as a new
+commit, and redeploys the restored site.
 
 After pushing the repository to GitHub, open **Settings → Pages** and select
 **GitHub Actions** as the build and deployment source. The action will publish

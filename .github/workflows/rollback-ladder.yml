@@ -1,0 +1,99 @@
+name: Roll back ladder data
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: Commit SHA from the ladder-data branch to restore
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  rollback-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Validate rollback target
+        env:
+          TARGET_COMMIT: ${{ inputs.commit }}
+        run: |
+          if [[ ! "$TARGET_COMMIT" =~ ^[0-9a-fA-F]{7,40}$ ]]; then
+            echo 'The rollback target must be a 7-40 character hexadecimal commit SHA.' >&2
+            exit 1
+          fi
+          git fetch origin ladder-data
+          TARGET_COMMIT=$(git rev-parse --verify "$TARGET_COMMIT^{commit}")
+          if ! git merge-base --is-ancestor "$TARGET_COMMIT" origin/ladder-data; then
+            echo 'The rollback target is not retained on the ladder-data branch.' >&2
+            exit 1
+          fi
+          echo "target=$TARGET_COMMIT" >> "$GITHUB_ENV"
+
+      - name: Restore checkpoint
+        env:
+          DATA_WORKTREE: /tmp/coa-ladder-data
+        run: |
+          REMOTE_SHA=$(git rev-parse refs/remotes/origin/ladder-data)
+          git worktree add --detach "$DATA_WORKTREE" origin/ladder-data
+
+          for FILE in ladder.json history.json tracked-players.json armory.json; do
+            git show "${target}:$FILE" > "$DATA_WORKTREE/$FILE"
+          done
+          bun scripts/validate-ladder-data.ts "$DATA_WORKTREE"
+
+          git -C "$DATA_WORKTREE" add ladder.json history.json tracked-players.json armory.json
+          if git -C "$DATA_WORKTREE" diff --cached --quiet; then
+            echo 'The selected checkpoint is already current.'
+          else
+            git -C "$DATA_WORKTREE" config user.name github-actions[bot]
+            git -C "$DATA_WORKTREE" config user.email 41898282+github-actions[bot]@users.noreply.github.com
+            git -C "$DATA_WORKTREE" commit -m "data: roll back to ${target:0:12}"
+
+            if [[ $(git -C "$DATA_WORKTREE" rev-list --count HEAD) -gt 12 ]]; then
+              OLDEST_KEPT=$(git -C "$DATA_WORKTREE" rev-parse HEAD~11)
+              BASELINE=$(git -C "$DATA_WORKTREE" commit-tree "$OLDEST_KEPT^{tree}" -m "data: retention baseline")
+              git -C "$DATA_WORKTREE" rebase --onto "$BASELINE" "$OLDEST_KEPT" HEAD
+            fi
+
+            git -C "$DATA_WORKTREE" push \
+              --force-with-lease=refs/heads/ladder-data:"$REMOTE_SHA" origin HEAD:ladder-data
+          fi
+
+          cp "$DATA_WORKTREE/ladder.json" public/ladder.json
+
+      - name: Build static site
+        run: bun run build
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
