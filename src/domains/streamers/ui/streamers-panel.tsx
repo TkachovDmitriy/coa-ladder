@@ -52,7 +52,10 @@ export function StreamersPanel({ entries, realmId }: StreamersPanelProps) {
           </span>
         ) : null}
       </CardHeader>
-      <CardContent className="grid gap-2 p-4 pt-0 sm:grid-cols-2 sm:px-5">
+      <CardContent
+        className="flex snap-x snap-mandatory gap-2 overflow-x-auto p-4 pt-0 sm:px-5"
+        aria-label="Streamer channels"
+      >
         {realmStreamers.map((data) => (
           <StreamerCard key={`${data.streamer.twitchChannel}-${data.streamer.characterName}`} data={data} />
         ))}
@@ -71,7 +74,7 @@ function StreamerCard({ data: { streamer, entry, status } }: { data: StreamerCar
       target="_blank"
       rel="noreferrer"
       className={cn(
-        "group flex min-w-0 items-center gap-3 rounded-md border p-3 transition-colors",
+        "group flex w-[88%] shrink-0 snap-start items-center gap-3 rounded-md border p-3 transition-colors sm:w-[calc(50%-0.25rem)] lg:w-[calc(25%-0.375rem)]",
         isLive
           ? "border-red-500/40 bg-red-500/[0.06] hover:bg-red-500/10"
           : "border-border bg-secondary/30 text-muted-foreground hover:bg-secondary/60 hover:text-foreground",

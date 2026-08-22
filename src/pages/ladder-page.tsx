@@ -150,9 +150,13 @@ function LadderSkeleton() {
           <Skeleton className="h-5 w-28" />
           <Skeleton className="h-3 w-48" />
         </CardHeader>
-        <CardContent className="grid gap-2 p-4 pt-0 sm:grid-cols-2 sm:px-5">
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-16 w-full" />
+        <CardContent className="flex gap-2 overflow-hidden p-4 pt-0 sm:px-5">
+          {Array.from({ length: 4 }, (_, index) => (
+            <Skeleton
+              key={index}
+              className="h-16 w-[88%] shrink-0 sm:w-[calc(50%-0.25rem)] lg:w-[calc(25%-0.375rem)]"
+            />
+          ))}
         </CardContent>
       </Card>
 
