@@ -1,4 +1,8 @@
+import { ChevronDown, ChevronUp } from "lucide-react"
+import { useState } from "react"
+
 import { ClassIcon } from "@/shared/components/class-icon"
+import { Button } from "@/shared/components/ui/button"
 import { classColor } from "@/shared/constants/classes.constants"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip"
 
@@ -9,6 +13,7 @@ interface ClassDistributionProps {
 }
 
 const percent = new Intl.NumberFormat("en-US", { style: "percent", maximumFractionDigits: 1 })
+const DEFAULT_VISIBLE_CLASSES = 5
 
 const COLUMNS: { key: string; label: string; width: string; hideBelowSm?: boolean; hint: string }[] = [
   { key: "share", label: "Share", width: "w-14", hint: "Percentage of all ranked players playing this class" },
@@ -33,63 +38,83 @@ const COLUMNS: { key: string; label: string; width: string; hideBelowSm?: boolea
 
 /** Class icons + class-colored bars, sorted by share (gamer-friendly view). */
 export function ClassDistribution({ stats }: ClassDistributionProps) {
+  const [expanded, setExpanded] = useState(false)
   const max = Math.max(...stats.map((s) => s.share), 0.0001)
+  const canExpand = stats.length > DEFAULT_VISIBLE_CLASSES
+  const visibleStats = expanded ? stats : stats.slice(0, DEFAULT_VISIBLE_CLASSES)
 
   return (
-    <div className="space-y-1 overflow-x-auto">
-      <div className="grid min-w-[38rem] grid-cols-[minmax(8.5rem,10rem)_1fr_auto] items-center gap-3 px-1 pb-1 text-xs uppercase tracking-wide text-muted-foreground">
-        <span>Class</span>
-        <span>Share</span>
-        <div className="flex shrink-0 justify-end gap-3">
-          {COLUMNS.map((col) => (
-            <Tooltip key={col.key}>
-              <TooltipTrigger asChild>
-                <span
-                  className={`${col.width} shrink-0 whitespace-nowrap text-right underline decoration-dotted underline-offset-2 cursor-help ${col.hideBelowSm ? "hidden sm:inline-block" : ""}`}
-                >
-                  {col.label}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>{col.hint}</TooltipContent>
-            </Tooltip>
-          ))}
+    <div className="space-y-3">
+      <div id="class-distribution-rows" className="space-y-1 overflow-x-auto">
+        <div className="grid min-w-[38rem] grid-cols-[minmax(8.5rem,10rem)_1fr_auto] items-center gap-3 px-1 pb-1 text-xs uppercase tracking-wide text-muted-foreground">
+          <span>Class</span>
+          <span>Share</span>
+          <div className="flex shrink-0 justify-end gap-3">
+            {COLUMNS.map((col) => (
+              <Tooltip key={col.key}>
+                <TooltipTrigger asChild>
+                  <span
+                    className={`${col.width} shrink-0 whitespace-nowrap text-right underline decoration-dotted underline-offset-2 cursor-help ${col.hideBelowSm ? "hidden sm:inline-block" : ""}`}
+                  >
+                    {col.label}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>{col.hint}</TooltipContent>
+              </Tooltip>
+            ))}
+          </div>
         </div>
+
+        {visibleStats.map((stat) => {
+          const color = classColor(stat.className)
+          return (
+            <div
+              key={stat.className}
+              className="grid min-w-[38rem] grid-cols-[minmax(8.5rem,10rem)_1fr_auto] items-center gap-3 rounded-md px-1 py-1 hover:bg-secondary/40"
+            >
+              <div className="flex min-w-0 items-center gap-2">
+                <ClassIcon name={stat.className} size={22} />
+                <span className="truncate text-sm font-medium" style={{ color }}>
+                  {stat.className}
+                </span>
+              </div>
+
+              <div className="h-2.5 overflow-hidden rounded-full bg-secondary/70">
+                <div
+                  className="h-full rounded-full"
+                  style={{ width: `${(stat.share / max) * 100}%`, backgroundColor: color }}
+                />
+              </div>
+
+              <div className="flex shrink-0 justify-end gap-3 text-sm tabular">
+                <span className="w-14 shrink-0 text-right font-medium">{percent.format(stat.share)}</span>
+                <span className="w-16 shrink-0 text-right text-muted-foreground">{stat.players}</span>
+                <span className="hidden w-20 shrink-0 text-right text-muted-foreground sm:inline-block">
+                  {stat.topRating.toLocaleString()}
+                </span>
+                <span className="w-14 shrink-0 text-right text-muted-foreground">{percent.format(stat.avgWinRate)}</span>
+                <span className="hidden w-14 shrink-0 text-right text-muted-foreground sm:inline-block">{stat.top10}</span>
+                <span className="w-14 shrink-0 text-right text-muted-foreground">#{stat.bestPlace}</span>
+              </div>
+            </div>
+          )
+        })}
       </div>
 
-      {stats.map((stat) => {
-        const color = classColor(stat.className)
-        return (
-          <div
-            key={stat.className}
-            className="grid min-w-[38rem] grid-cols-[minmax(8.5rem,10rem)_1fr_auto] items-center gap-3 rounded-md px-1 py-1 hover:bg-secondary/40"
-          >
-            <div className="flex min-w-0 items-center gap-2">
-              <ClassIcon name={stat.className} size={22} />
-              <span className="truncate text-sm font-medium" style={{ color }}>
-                {stat.className}
-              </span>
-            </div>
-
-            <div className="h-2.5 overflow-hidden rounded-full bg-secondary/70">
-              <div
-                className="h-full rounded-full"
-                style={{ width: `${(stat.share / max) * 100}%`, backgroundColor: color }}
-              />
-            </div>
-
-            <div className="flex shrink-0 justify-end gap-3 text-sm tabular">
-              <span className="w-14 shrink-0 text-right font-medium">{percent.format(stat.share)}</span>
-              <span className="w-16 shrink-0 text-right text-muted-foreground">{stat.players}</span>
-              <span className="hidden w-20 shrink-0 text-right text-muted-foreground sm:inline-block">
-                {stat.topRating.toLocaleString()}
-              </span>
-              <span className="w-14 shrink-0 text-right text-muted-foreground">{percent.format(stat.avgWinRate)}</span>
-              <span className="hidden w-14 shrink-0 text-right text-muted-foreground sm:inline-block">{stat.top10}</span>
-              <span className="w-14 shrink-0 text-right text-muted-foreground">#{stat.bestPlace}</span>
-            </div>
-          </div>
-        )
-      })}
+      {canExpand ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="mx-auto flex"
+          aria-expanded={expanded}
+          aria-controls="class-distribution-rows"
+          onClick={() => setExpanded((value) => !value)}
+        >
+          {expanded ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+          {expanded ? "Show less" : `Show ${stats.length - DEFAULT_VISIBLE_CLASSES} more`}
+        </Button>
+      ) : null}
     </div>
   )
 }

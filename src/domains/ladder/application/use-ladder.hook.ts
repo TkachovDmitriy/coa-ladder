@@ -15,11 +15,10 @@ interface UseLadderResult {
   setRealm: (realmId: RealmId) => void
   /** all entries for the bracket (drives stats + tiles). */
   bracketEntries: LadderEntry[]
-  /** entries after search/class/spec filter (drives the table; TanStack Table sorts). */
+  /** entries after search/class filter (drives the table; TanStack Table sorts). */
   visibleEntries: LadderEntry[]
   previouslyRankedEntries: PreviouslyRankedEntry[]
   classOptions: string[]
-  specOptions: string[]
   generatedAt: string | null
 }
 
@@ -45,15 +44,9 @@ export function useLadder(bracket: Bracket, search: LadderSearchParams): UseLadd
     return [...set].sort()
   }, [bracketEntries])
 
-  const specOptions = useMemo(() => {
-    const set = new Set<string>()
-    for (const e of bracketEntries) if (e.spec) set.add(e.spec)
-    return [...set].sort()
-  }, [bracketEntries])
-
   const visibleEntries = useMemo(
-    () => filterEntries(bracketEntries, search.search, search.class, search.spec),
-    [bracketEntries, search.search, search.class, search.spec],
+    () => filterEntries(bracketEntries, search.search, search.class, null),
+    [bracketEntries, search.search, search.class],
   )
 
   return {
@@ -65,7 +58,6 @@ export function useLadder(bracket: Bracket, search: LadderSearchParams): UseLadd
     visibleEntries,
     previouslyRankedEntries,
     classOptions,
-    specOptions,
     generatedAt,
   }
 }
