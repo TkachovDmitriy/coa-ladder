@@ -41,11 +41,8 @@ export function LadderPage() {
           search={search.search}
           className={search.class}
           classOptions={ladder.classOptions}
-          spec={search.spec}
-          specOptions={ladder.specOptions}
           onSearch={(value) => updateSearch({ search: value })}
           onClassName={(value) => updateSearch({ class: value })}
-          onSpec={(value) => updateSearch({ spec: value })}
           resultCount={ladder.visibleEntries.length}
         />
         <LadderTable

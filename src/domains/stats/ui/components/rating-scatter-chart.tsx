@@ -96,7 +96,7 @@ export function RatingScatterChart({ points }: RatingScatterChartProps) {
   return (
     <Chart
       definition={definition}
-      height={340}
+      height={220}
       ariaLabel="Rating versus win rate"
       ariaDescription="Each point represents one resolved player. Color identifies the player's class."
     />
