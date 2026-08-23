@@ -9,6 +9,7 @@ import type { PreviouslyRankedEntry } from "../../model/ladder.type"
 import { readStoredPageSize, storePageSize, TablePagination } from "./table-pagination"
 
 const dateTime = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" })
+const PREVIOUSLY_RANKED_ROW_HEIGHT = 53
 
 interface PreviouslyRankedTableProps {
   entries: PreviouslyRankedEntry[]
@@ -27,6 +28,8 @@ export function PreviouslyRankedTable({ entries, currentCutoff }: PreviouslyRank
   }, [entries, search])
   const pageCount = Math.max(1, Math.ceil(visible.length / pageSize))
   const pageEntries = visible.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize)
+  const renderedContentRows = Math.max(1, pageEntries.length)
+  const emptyRowSpace = Math.max(0, pageSize - renderedContentRows) * PREVIOUSLY_RANKED_ROW_HEIGHT
 
   useEffect(() => {
     setPageIndex(0)
@@ -101,6 +104,11 @@ export function PreviouslyRankedTable({ entries, currentCutoff }: PreviouslyRank
               ))}
               {visible.length === 0 ? (
                 <tr><td colSpan={6} className="px-3 py-8 text-center text-muted-foreground">No tracked players match your search.</td></tr>
+              ) : null}
+              {emptyRowSpace > 0 ? (
+                <tr aria-hidden="true" className="pointer-events-none">
+                  <td colSpan={6} style={{ height: emptyRowSpace }} />
+                </tr>
               ) : null}
             </tbody>
           </table>
