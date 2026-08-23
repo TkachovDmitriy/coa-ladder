@@ -104,9 +104,9 @@ export function ClassDistribution({ stats }: ClassDistributionProps) {
       {canExpand ? (
         <Button
           type="button"
-          variant="ghost"
+          variant="secondary"
           size="sm"
-          className="mx-auto flex"
+          className="mx-auto flex min-w-40 border border-border shadow-sm"
           aria-expanded={expanded}
           aria-controls="class-distribution-rows"
           onClick={() => setExpanded((value) => !value)}
