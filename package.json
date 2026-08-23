@@ -12,7 +12,8 @@
     "prerender": "bun scripts/prerender.ts",
     "data:pull": "bun scripts/pull.ts",
     "data:build": "bun scripts/build-ladder.ts",
-    "data:refresh": "bun scripts/refresh.ts"
+    "data:refresh": "bun scripts/refresh.ts",
+    "discord:setup": "bun scripts/setup-discord.ts"
   },
   "dependencies": {
     "@radix-ui/react-select": "^2.3.7",
