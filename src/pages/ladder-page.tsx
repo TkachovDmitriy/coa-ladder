@@ -25,7 +25,7 @@ export function LadderPage() {
   useDocumentMeta(bracket)
 
   const updateSearch = (patch: Partial<LadderSearchParams>) => {
-    void navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true })
+    void navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true, resetScroll: false })
   }
 
   if (state.status === "idle" || state.status === "loading") return <LadderSkeleton />
