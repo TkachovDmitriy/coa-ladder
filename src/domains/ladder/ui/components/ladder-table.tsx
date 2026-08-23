@@ -25,6 +25,7 @@ import { readStoredPageSize, storePageSize, TablePagination } from "./table-pagi
 const percent = new Intl.NumberFormat("en-US", { style: "percent", maximumFractionDigits: 0 })
 const signedNumber = new Intl.NumberFormat("en-US", { signDisplay: "always" })
 const columnHelper = createColumnHelper<LadderEntry>()
+const LADDER_ROW_HEIGHT = 61
 
 function buildColumns(realmId: number) {
   return [
@@ -179,6 +180,9 @@ export function LadderTable({ entries, sorting, onSortingChange, realmId }: Ladd
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   })
+  const rows = table.getRowModel().rows
+  const renderedContentRows = Math.max(1, rows.length)
+  const emptyRowSpace = Math.max(0, pagination.pageSize - renderedContentRows) * LADDER_ROW_HEIGHT
 
   return (
     <div className="rounded-lg border border-border">
@@ -211,7 +215,7 @@ export function LadderTable({ entries, sorting, onSortingChange, realmId }: Ladd
           ))}
         </thead>
         <tbody>
-          {table.getRowModel().rows.map((row) => (
+          {rows.map((row) => (
             <tr key={row.id} className={cn("border-b border-border/50 last:border-0", rankRowClass(row.original.place))}>
               {row.getVisibleCells().map((cell) => (
                 <td key={cell.id} className="px-3 py-2">
@@ -220,11 +224,16 @@ export function LadderTable({ entries, sorting, onSortingChange, realmId }: Ladd
               ))}
             </tr>
           ))}
-          {table.getRowModel().rows.length === 0 ? (
+          {rows.length === 0 ? (
             <tr>
               <td colSpan={columns.length} className="px-3 py-8 text-center text-muted-foreground">
                 No players match your filters.
               </td>
+            </tr>
+          ) : null}
+          {emptyRowSpace > 0 ? (
+            <tr aria-hidden="true" className="pointer-events-none">
+              <td colSpan={columns.length} style={{ height: emptyRowSpace }} />
             </tr>
           ) : null}
         </tbody>
