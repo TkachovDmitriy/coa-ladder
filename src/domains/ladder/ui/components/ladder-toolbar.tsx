@@ -62,11 +62,11 @@ export function LadderToolbar({
                   aria-pressed={selected}
                   onClick={() => onClassName(selected ? null : cls)}
                   className={cn(
-                    "size-8",
+                    "size-[50px]",
                     selected && "border-primary bg-primary/10 text-foreground ring-1 ring-primary",
                   )}
                 >
-                  <ClassIcon name={cls} size={22} />
+                  <ClassIcon name={cls} size={36} />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{cls}</TooltipContent>
