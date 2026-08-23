@@ -40,7 +40,9 @@ bun run build
 
 The repository includes an idempotent setup script for the CoA Arena Ladder
 community server. It creates the roles, categories, channels, permissions and
-support forum without deleting existing server resources.
+support forum without deleting existing server resources. See the complete
+[Discord server setup guide](docs/discord-server-setup.md) for role details,
+Dyno configuration, security guidance, and troubleshooting.
 
 1. Create an application and bot in the
    [Discord Developer Portal](https://discord.com/developers/applications).
