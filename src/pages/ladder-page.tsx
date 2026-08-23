@@ -64,9 +64,9 @@ export function LadderPage() {
 /** Keep document metadata and the bracket-specific canonical URL current during SPA navigation. */
 function useDocumentMeta(bracket: Bracket) {
   useEffect(() => {
-    const title = "CoA Arena Ladder — 1v1, 2v2 & 3v3"
-    const pageDescription =
-      "Explore Conquest of Azeroth arena PvP rankings, player ratings, win records, class statistics and armory links."
+    const realmName = "Vol'Jin"
+    const title = `CoA ${bracket} Arena Ladder — ${realmName} Rankings`
+    const pageDescription = `View the Conquest of Azeroth ${bracket} PvP ladder for ${realmName}, including player ratings, wins, losses, classes, and arena rankings.`
 
     document.title = title
 
