@@ -15,9 +15,7 @@ const DIST_DIR = join(import.meta.dir, "..", "dist")
 const SITE_URL = "https://tkachovdmitriy.github.io/coa-ladder"
 const DEFAULT_REALM_ID = 40
 const TOP_N = 50
-const SITE_TITLE = "CoA Arena Ladder — 1v1, 2v2 & 3v3"
-const SITE_DESCRIPTION =
-  "Explore Conquest of Azeroth arena PvP rankings, player ratings, win records, class statistics and armory links."
+const SITE_NAME = "CoA Arena Ladder"
 
 type Bracket = "1v1" | "2v2" | "3v3"
 
@@ -82,9 +80,10 @@ function renderPage(
   generatedAt: string,
   canonical = `${SITE_URL}/${bracket}/`,
 ): string {
-  const title = SITE_TITLE
-  const description = SITE_DESCRIPTION
+  const title = `CoA ${bracket} Arena Ladder — ${realmName} Rankings`
+  const description = `View the Conquest of Azeroth ${bracket} PvP ladder for ${realmName}, including player ratings, wins, losses, classes, and arena rankings.`
   const heading = `CoA Arena ${bracket} Ladder — ${realmName}`
+  const intro = `This is the community Conquest of Azeroth ${bracket} PvP ladder for the ${realmName} realm. Rankings are ordered by rating and include player class, wins, and losses.`
   const escapedTitle = escapeHtml(title)
   const escapedDescription = escapeHtml(description)
   const structuredData = JSON.stringify({
@@ -94,8 +93,8 @@ function renderPage(
         "@type": "WebSite",
         "@id": `${SITE_URL}/#website`,
         url: `${SITE_URL}/`,
-        name: "CoA Arena Ladder",
-        description: SITE_DESCRIPTION,
+        name: SITE_NAME,
+        description,
         inLanguage: "en",
       },
       {
@@ -135,7 +134,7 @@ function renderPage(
         #root th { color: hsl(var(--muted-foreground)); font-weight: 500; }
       </style>
       <h1>${escapeHtml(heading)}</h1>
-      <p>${escapeHtml(SITE_DESCRIPTION)}</p>
+      <p>${escapeHtml(intro)}</p>
       <p>Data updated ${new Date(generatedAt).toUTCString()}</p>
       ${renderTable(entries)}
     </main></div>`,
