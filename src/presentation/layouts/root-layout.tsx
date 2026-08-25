@@ -1,4 +1,4 @@
-import { Link, Outlet } from "@tanstack/react-router"
+import { Link, Outlet, useMatchRoute } from "@tanstack/react-router"
 import { Github, MessagesSquare } from "lucide-react"
 
 import { useLadderStore } from "@/domains/ladder/application/ladder.store"
@@ -9,6 +9,10 @@ import { Button } from "@/shared/components/ui/button"
 export function RootLayout() {
   const state = useLadderStore((s) => s.data)
   const generatedAt = state.status === "success" ? state.dataset.generatedAt : null
+  // The realm/bracket switchers drive the ladder; the player detail page has
+  // its own realm/bracket context, so hide them there.
+  const matchRoute = useMatchRoute()
+  const onPlayerPage = Boolean(matchRoute({ to: "/player/$realm/$bracket/$name", fuzzy: true }))
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -34,16 +38,18 @@ export function RootLayout() {
               <ThemeToggle />
             </div>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Realm</span>
-              <RealmTabs />
+          {onPlayerPage ? null : (
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Realm</span>
+                <RealmTabs />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Bracket</span>
+                <BracketTabs />
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Bracket</span>
-              <BracketTabs />
-            </div>
-          </div>
+          )}
         </div>
       </header>
 
