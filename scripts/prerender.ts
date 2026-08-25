@@ -228,4 +228,10 @@ for (const bracket of BRACKETS) {
 
 await Bun.write(join(DIST_DIR, "privacy", "index.html"), renderPrivacyPage(template))
 
-console.log(`Prerendered root (1v1), 2v2, 3v3 (+/1v1/ redirect) and privacy into ${DIST_DIR}/`)
+// SPA fallback: GitHub Pages serves 404.html for any path without a matching
+// file (e.g. deep-linked /player/<realm>/<bracket>/<name> pages, which aren't
+// prerendered). The neutral app shell boots and the client router renders the
+// requested route from window.location.
+await Bun.write(join(DIST_DIR, "404.html"), template)
+
+console.log(`Prerendered root (1v1), 2v2, 3v3 (+/1v1/ redirect), privacy and 404 SPA fallback into ${DIST_DIR}/`)

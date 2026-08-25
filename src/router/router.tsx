@@ -1,10 +1,12 @@
 import { createRootRoute, createRoute, createRouter, redirect } from "@tanstack/react-router"
 
 import { IndexLadderPage, BracketLadderPage } from "@/pages/ladder-page"
+import { PlayerPage } from "@/pages/player-page"
 import { PrivacyPage } from "@/pages/privacy-page"
 import { RootLayout } from "@/presentation/layouts/root-layout"
 import { DEFAULT_LADDER_SEARCH, validateLadderSearch } from "@/domains/ladder/utils/ladder-search.utils"
 import { DEFAULT_BRACKET, isBracket } from "@/shared/constants/brackets.constants"
+import { realmFromSlug } from "@/shared/constants/realms.constants"
 
 const rootRoute = createRootRoute({ component: RootLayout })
 
@@ -40,7 +42,20 @@ const privacyRoute = createRoute({
   component: PrivacyPage,
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, bracketRoute, privacyRoute])
+// Per-player weekly stats, deep-linkable. Realm slug + bracket disambiguate
+// players whose names collide across realms/brackets.
+const playerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "player/$realm/$bracket/$name",
+  beforeLoad: ({ params }) => {
+    if (realmFromSlug(params.realm) === undefined || !isBracket(params.bracket)) {
+      throw redirect({ to: "/", search: DEFAULT_LADDER_SEARCH })
+    }
+  },
+  component: PlayerPage,
+})
+
+const routeTree = rootRoute.addChildren([indexRoute, bracketRoute, privacyRoute, playerRoute])
 
 // Strip the trailing slash so the router basepath matches Vite's base.
 const basepath = import.meta.env.BASE_URL.replace(/\/$/, "")

@@ -52,9 +52,35 @@ export const TRACKED_PLAYERS_FILE = join(SCRIPTS_DIR, "cache", "tracked-players.
 export const MIN_SNAPSHOT_GAP_MS = 60 * 60 * 1000
 /** Target age for displayed rating and W/L changes; the closest eligible snapshot is used. */
 export const CHANGE_WINDOW_MS = 24 * 60 * 60 * 1000
-/** Refresh runs every two hours, so 96 snapshots retain roughly eight days. */
+/** Refresh runs every two hours, so 96 snapshots retain roughly eight days.
+ * That already covers the seven-day weekly-stats window with a day of
+ * tolerance for missed runs. Retention is bumped to 360 only for the future
+ * 30-day scope (see docs/monthly-statistics-improvement.md). */
 export const MAX_HISTORY_SNAPSHOTS = 96
 export const OVERRIDES_FILE = join(SCRIPTS_DIR, "overrides.json")
 
 /** Final trimmed dataset served by the app (the only public file). */
 export const LADDER_JSON_OUT = join(SCRIPTS_DIR, "..", "public", "ladder.json")
+
+// ---- Weekly statistics -----------------------------------------------------
+
+/** Rolling window the weekly stats describe. */
+export const WEEKLY_PERIOD_DAYS = 7
+export const WEEKLY_PERIOD_MS = WEEKLY_PERIOD_DAYS * 24 * 60 * 60 * 1000
+/** Real workflow reliability: snapshots persist only when the ladder actually
+ * changes, so a week yields ~56 (≈8/day), not the nominal 84 at a 2h cadence. */
+export const EXPECTED_WEEKLY_SNAPSHOTS = 56
+/** Coverage thresholds — see docs/weekly-stats-implementation-plan.md. Tuned
+ * against the first real week of data (56 snapshots over 7 days). */
+export const COVERAGE_COMPLETE_MIN_SNAPSHOTS = 45
+export const COVERAGE_COMPLETE_MIN_SPAN_DAYS = 6.5
+export const COVERAGE_PARTIAL_MIN_SNAPSHOTS = 2
+/** Minimum player points before a rating trend line is worth drawing. */
+export const TREND_MIN_SNAPSHOTS = 4
+/** Cap per-player trend length to bound stats.json size; evenly downsampled. */
+export const MAX_TREND_POINTS = 48
+/** How many gainers/fallers to surface per realm+bracket. */
+export const WEEKLY_LEADERS_LIMIT = 10
+
+/** Derived weekly-statistics dataset served to the browser. */
+export const STATS_JSON_OUT = join(SCRIPTS_DIR, "..", "public", "stats.json")

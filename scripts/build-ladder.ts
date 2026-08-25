@@ -18,7 +18,9 @@ import {
   MAX_HISTORY_SNAPSHOTS,
   MIN_SNAPSHOT_GAP_MS,
   REALMS,
+  STATS_JSON_OUT,
 } from "./lib/pipeline.constants"
+import { buildStatsDataset } from "./lib/weekly-stats.utils"
 import type {
   Bracket,
   EnrichedEntry,
@@ -91,8 +93,19 @@ for (const realm of REALMS) {
 const dataset: LadderDataset = { generatedAt, realms }
 await Bun.write(LADDER_JSON_OUT, JSON.stringify(dataset))
 
+// Include the freshly built snapshot in the retained history *before*
+// aggregating, so the weekly window ends on the current data point.
 const snapshot = buildSnapshot(realms, generatedAt)
-await saveHistory(appendSnapshot(history, snapshot, MAX_HISTORY_SNAPSHOTS, MIN_SNAPSHOT_GAP_MS))
+const updatedHistory = appendSnapshot(history, snapshot, MAX_HISTORY_SNAPSHOTS, MIN_SNAPSHOT_GAP_MS)
+
+const stats = buildStatsDataset(
+  updatedHistory.snapshots,
+  REALMS.map((r) => r.id),
+  BRACKETS.map((b) => b.id),
+  generatedAt,
+)
+await Bun.write(STATS_JSON_OUT, JSON.stringify(stats))
+await saveHistory(updatedHistory)
 await saveTrackedPlayers(trackedPlayers)
 
 console.log(`Wrote ${LADDER_JSON_OUT}`)
@@ -101,3 +114,17 @@ for (const realm of realms) {
   console.log(`  realm ${realm.id} (${realm.name})  ${counts}`)
 }
 console.log(`  generated ${dataset.generatedAt}`)
+
+// Weekly-stats data-quality logging: retained + windowed snapshot counts, the
+// covered range, and the emitted file size (see the implementation plan).
+const statsSize = Bun.file(STATS_JSON_OUT).size
+const firstRealm = stats.realms[0]
+const sampleBracket = firstRealm && firstRealm.brackets[BRACKETS[0].id]
+console.log(`Wrote ${STATS_JSON_OUT} (${(statsSize / 1024).toFixed(1)} KB)`)
+console.log(`  retained ${updatedHistory.snapshots.length}/${MAX_HISTORY_SNAPSHOTS} snapshots`)
+if (sampleBracket) {
+  console.log(
+    `  weekly window: ${sampleBracket.snapshotCount}/${stats.expectedSnapshotCount} snapshots` +
+      `  ${sampleBracket.capturedFrom ?? "—"} → ${sampleBracket.capturedTo ?? "—"}`,
+  )
+}
