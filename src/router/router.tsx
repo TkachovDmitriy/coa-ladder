@@ -1,6 +1,6 @@
 import { createRootRoute, createRoute, createRouter, redirect } from "@tanstack/react-router"
 
-import { LadderPage } from "@/pages/ladder-page"
+import { IndexLadderPage, BracketLadderPage } from "@/pages/ladder-page"
 import { PrivacyPage } from "@/pages/privacy-page"
 import { RootLayout } from "@/presentation/layouts/root-layout"
 import { DEFAULT_LADDER_SEARCH, validateLadderSearch } from "@/domains/ladder/utils/ladder-search.utils"
@@ -8,24 +8,30 @@ import { DEFAULT_BRACKET, isBracket } from "@/shared/constants/brackets.constant
 
 const rootRoute = createRootRoute({ component: RootLayout })
 
+// `/` is the canonical 1v1 ladder — it renders the default bracket in place
+// (no redirect away from it) so its ranking signals stay on one URL.
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
-  beforeLoad: () => {
-    throw redirect({ to: "/$bracket", params: { bracket: DEFAULT_BRACKET }, search: DEFAULT_LADDER_SEARCH })
-  },
+  validateSearch: validateLadderSearch,
+  component: IndexLadderPage,
 })
 
 const bracketRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "$bracket",
   validateSearch: validateLadderSearch,
-  beforeLoad: ({ params }) => {
+  beforeLoad: ({ params, search }) => {
+    // The 1v1 bracket lives at `/`; consolidate `/1v1` into it so the two
+    // URLs don't compete for the same content.
+    if (params.bracket === DEFAULT_BRACKET) {
+      throw redirect({ to: "/", search })
+    }
     if (!isBracket(params.bracket)) {
-      throw redirect({ to: "/$bracket", params: { bracket: DEFAULT_BRACKET }, search: DEFAULT_LADDER_SEARCH })
+      throw redirect({ to: "/", search: DEFAULT_LADDER_SEARCH })
     }
   },
-  component: LadderPage,
+  component: BracketLadderPage,
 })
 
 const privacyRoute = createRoute({
@@ -39,7 +45,32 @@ const routeTree = rootRoute.addChildren([indexRoute, bracketRoute, privacyRoute]
 // Strip the trailing slash so the router basepath matches Vite's base.
 const basepath = import.meta.env.BASE_URL.replace(/\/$/, "")
 
-export const router = createRouter({ routeTree, basepath, defaultPreload: "intent" })
+// Drop empty/default values from the URL so shared links stay clean:
+// `/` with no filters instead of `?search=&class=null&spec=null&sort=null&dir=null`.
+// Every meaningful ladder search value is a plain string, so we serialize as
+// flat strings (no JSON quoting) and let validateLadderSearch narrow on read.
+function stringifySearch(search: Record<string, unknown>): string {
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(search)) {
+    if (value === null || value === undefined || value === "") continue
+    params.set(key, String(value))
+  }
+  const str = params.toString()
+  return str ? `?${str}` : ""
+}
+
+function parseSearch(searchStr: string): Record<string, unknown> {
+  const params = new URLSearchParams(searchStr.replace(/^\?/, ""))
+  return Object.fromEntries(params.entries())
+}
+
+export const router = createRouter({
+  routeTree,
+  basepath,
+  defaultPreload: "intent",
+  parseSearch,
+  stringifySearch,
+})
 
 declare module "@tanstack/react-router" {
   interface Register {

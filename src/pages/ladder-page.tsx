@@ -10,23 +10,44 @@ import { LadderTable, LadderToolbar, PreviouslyRankedTable, StatTiles } from "@/
 import { Stats } from "@/domains/stats/ui"
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card"
 import { Skeleton } from "@/shared/components/ui/skeleton"
-import type { Bracket } from "@/shared/constants/brackets.constants"
+import { DEFAULT_BRACKET, type Bracket } from "@/shared/constants/brackets.constants"
 
-const route = getRouteApi("/$bracket")
+const indexRoute = getRouteApi("/")
+const bracketRoute = getRouteApi("/$bracket")
 
-/** Thin route entry: compose the ladder + stats domains for the active bracket. */
-export function LadderPage() {
-  const { bracket } = route.useParams() as { bracket: Bracket }
-  const search = route.useSearch()
-  const navigate = route.useNavigate()
+/** Route entry for `/` — the canonical 1v1 ladder. */
+export function IndexLadderPage() {
+  const search = indexRoute.useSearch()
+  const navigate = indexRoute.useNavigate()
+  const updateSearch = (patch: Partial<LadderSearchParams>) => {
+    void navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true, resetScroll: false })
+  }
+  return <LadderView bracket={DEFAULT_BRACKET} search={search} updateSearch={updateSearch} />
+}
+
+/** Route entry for `/$bracket` — the 2v2/3v3 ladders (1v1 redirects to `/`). */
+export function BracketLadderPage() {
+  const { bracket } = bracketRoute.useParams() as { bracket: Bracket }
+  const search = bracketRoute.useSearch()
+  const navigate = bracketRoute.useNavigate()
+  const updateSearch = (patch: Partial<LadderSearchParams>) => {
+    void navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true, resetScroll: false })
+  }
+  return <LadderView bracket={bracket} search={search} updateSearch={updateSearch} />
+}
+
+interface LadderViewProps {
+  bracket: Bracket
+  search: LadderSearchParams
+  updateSearch: (patch: Partial<LadderSearchParams>) => void
+}
+
+/** Compose the ladder + stats domains for the active bracket. */
+function LadderView({ bracket, search, updateSearch }: LadderViewProps) {
   const ladder = useLadder(bracket, search)
   const { state } = ladder
 
   useDocumentMeta(bracket)
-
-  const updateSearch = (patch: Partial<LadderSearchParams>) => {
-    void navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true, resetScroll: false })
-  }
 
   if (state.status === "idle" || state.status === "loading") return <LadderSkeleton />
   if (state.status === "error") return <ErrorState message={state.error} />
@@ -70,7 +91,11 @@ function useDocumentMeta(bracket: Bracket) {
 
     document.title = title
 
-    const canonicalUrl = `https://tkachovdmitriy.github.io/coa-ladder/${bracket}/`
+    // 1v1 is canonicalised to the site root; 2v2/3v3 keep their own URLs.
+    const canonicalUrl =
+      bracket === DEFAULT_BRACKET
+        ? "https://tkachovdmitriy.github.io/coa-ladder/"
+        : `https://tkachovdmitriy.github.io/coa-ladder/${bracket}/`
 
     const description = document.querySelector('meta[name="description"]')
     description?.setAttribute(
