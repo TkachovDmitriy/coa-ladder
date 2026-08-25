@@ -15,10 +15,14 @@ export function validateLadderSearch(search: Record<string, unknown>): LadderSea
   const sort = typeof search.sort === "string" && isSortableColumn(search.sort) ? search.sort : null
   const dir = search.dir === "asc" || search.dir === "desc" ? search.dir : null
 
+  // Treat the literal "null" string as absent — older shared links serialized
+  // an unset filter as `class=null`/`spec=null`; a real class/spec is never "null".
+  const asFilter = (value: unknown) => (typeof value === "string" && value !== "null" ? value : null)
+
   return {
     search: typeof search.search === "string" ? search.search : "",
-    class: typeof search.class === "string" ? search.class : null,
-    spec: typeof search.spec === "string" ? search.spec : null,
+    class: asFilter(search.class),
+    spec: asFilter(search.spec),
     sort,
     dir: sort ? (dir ?? "asc") : null,
   }

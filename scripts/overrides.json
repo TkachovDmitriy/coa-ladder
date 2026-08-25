@@ -1,4 +1,6 @@
 {
   "_comment": "Manual spec/class overrides from in-game knowledge, for players whose armory has no data (has_armory:false). Keyed by character name. The enricher applies these on top of API results and marks spec_status='manual'.",
-  "Kidneystone": { "class": "Sun Cleric", "spec": "Piety" }
+  "Kidneystone": { "class": "Sun Cleric", "spec": "Piety" },
+  "Solgodx": { "class": "Sun Cleric", "spec": "Piety" },
+  "Nysoni": { "class": "Sun Cleric", "spec": "Piety" }
 }
