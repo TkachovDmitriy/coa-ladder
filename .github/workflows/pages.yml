@@ -38,6 +38,14 @@ jobs:
         run: |
           git fetch origin ladder-data
           git show origin/ladder-data:ladder.json > public/ladder.json
+          # stats.json is derived weekly data, persisted by the refresh workflow.
+          # Fall back to a valid empty dataset before it exists on the branch so
+          # the build always ships a stats.json (the app degrades gracefully).
+          if git cat-file -e origin/ladder-data:stats.json 2>/dev/null; then
+            git show origin/ladder-data:stats.json > public/stats.json
+          else
+            echo '{"generatedAt":"","periodDays":7,"expectedSnapshotCount":56,"realms":[]}' > public/stats.json
+          fi
 
       - name: Build static site
         run: bun run build
