@@ -340,7 +340,12 @@ function CrossBracket({ realm, currentBracket, name }: { realm: RealmLadder; cur
 }
 
 function WeeklySection({ weekly, color }: { weekly: PlayerWeeklyView; color?: string }) {
-  if (weekly.status === "error") return <Notice>Couldn’t load weekly stats: {weekly.error}</Notice>
+  if (weekly.status === "error") {
+    // Soft-fail: the rest of the profile still renders. Keep the technical
+    // detail in the console rather than showing an HTTP code to players.
+    if (typeof console !== "undefined") console.warn("weekly stats unavailable:", weekly.error)
+    return <Notice>Weekly statistics are temporarily unavailable — check back soon.</Notice>
+  }
   if (weekly.status === "absent") return <Notice>Weekly statistics aren’t available for this realm and bracket yet.</Notice>
   if (weekly.status === "not-found") {
     return <Notice>No seven-day history yet — this player hasn’t appeared in enough ladder snapshots.</Notice>
