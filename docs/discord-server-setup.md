@@ -61,6 +61,7 @@ PROJECTS & SUPPORT
 
 STAFF
   #staff-chat
+  Staff Room (voice)
   #mod-log
 ```
 
@@ -69,6 +70,9 @@ private to the server owner and the setup bot. If Discord Community is enabled,
 `#coa-ladder-support` is a forum with `Bug`, `Incorrect data`, `Suggestion`,
 `Question`, and moderator-only `Resolved` tags. Otherwise it is created as a
 regular text channel.
+
+`#staff-chat` and the `Staff Room` voice channel are the private working area.
+`#mod-log` is kept separate for automated moderation and bot audit messages.
 
 `#dev-tools` is also read-only: the owner curates useful tools, libraries, and
 resources there while members suggest candidates in `#dev-chat`.

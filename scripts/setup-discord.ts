@@ -29,6 +29,7 @@ const PERMISSION = {
 
 const CHANNEL_TYPE = {
   text: 0,
+  voice: 2,
   category: 4,
   forum: 15,
 } as const
@@ -208,6 +209,27 @@ async function ensureTextChannel(name: string, parent: Channel, options: TextCha
   return created
 }
 
+async function ensureVoiceChannel(name: string, parent: Channel): Promise<Channel> {
+  const existing = channels.find(
+    (channel) => channel.type === CHANNEL_TYPE.voice && channel.name === name && channel.parent_id === parent.id,
+  )
+  const payload = { name, type: CHANNEL_TYPE.voice, parent_id: parent.id }
+
+  if (existing) {
+    await discord(`/channels/${existing.id}`, { method: "PATCH", body: JSON.stringify(payload) })
+    console.log(`  = voice ${name}`)
+    return existing
+  }
+
+  const created = await discord<Channel>(`/guilds/${guildId}/channels`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  })
+  channels.push(created)
+  console.log(`  + voice ${name}`)
+  return created
+}
+
 async function ensureProjectSupportChannel(parent: Channel): Promise<Channel> {
   const name = "coa-ladder-support"
   const existing = channels.find((channel) => channel.name === name && channel.parent_id === parent.id)
@@ -308,6 +330,7 @@ await ensureTextChannel("open-source", projects, {
 })
 await ensureProjectSupportChannel(projects)
 await ensureTextChannel("staff-chat", staff, { topic: "Private server management discussion." })
+await ensureVoiceChannel("Staff Room", staff)
 await ensureTextChannel("mod-log", staff, { topic: "Private moderation and bot audit log." })
 
 console.log("\nDone. No existing roles or channels were deleted.")
