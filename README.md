@@ -38,9 +38,10 @@ bun run build
 
 ## Discord server setup
 
-The repository includes an idempotent setup script for the CoA Arena Ladder
-community server. It creates the roles, categories, channels, permissions and
-support forum without deleting existing server resources. See the complete
+The repository includes an idempotent setup script for a creator community
+server centered on streams, gaming, development, and open source. CoA Arena
+Ladder has its own project and support channels without defining the whole
+server. The script never deletes existing server resources. See the complete
 [Discord server setup guide](docs/discord-server-setup.md) for role details,
 Dyno configuration, security guidance, and troubleshooting.
 
@@ -61,13 +62,13 @@ bun --env-file=.env.discord run discord:setup
 
 Treat the bot token like a password. Never paste it into chat or commit the
 local `.env.discord` file. Enable Discord **Community** before running the
-script if `#support-and-feedback` should be a forum; otherwise the script safely
+script if `#coa-ladder-support` should be a forum; otherwise the script safely
 creates it as a regular text channel.
 
 For moderation and self-assignable roles, the recommended companion bot is
 [Dyno](https://dyno.gg/bot). Its Action Log can use the private `#mod-log`
-channel, while the bracket, LFG and announcement roles can be exposed through
-Discord Onboarding or Dyno Reaction Roles.
+channel, while interest and notification roles can be exposed through Discord
+Onboarding or Dyno Reaction Roles.
 
 ## Rights
 

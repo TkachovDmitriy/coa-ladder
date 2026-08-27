@@ -3,7 +3,8 @@
 export {}
 
 /**
- * Idempotently prepares the CoA Arena Ladder community server.
+ * Idempotently prepares a creator community server for streams, gaming,
+ * development, and open-source project support.
  *
  * The script only creates or updates resources it owns. It never deletes
  * channels or roles, so it is safe to run again after changing this config.
@@ -91,12 +92,14 @@ let roles = await discord<Role[]>(`/guilds/${guildId}/roles`)
 
 const roleDefinitions = [
   { name: "Member", color: 0x95a5a6, mentionable: false },
-  { name: "Announcements", color: 0xf1c40f, mentionable: true },
-  { name: "Looking for Team", color: 0x2ecc71, mentionable: true },
-  { name: "1v1 Player", color: 0xe67e22, mentionable: false },
-  { name: "2v2 Player", color: 0x3498db, mentionable: false },
-  { name: "3v3 Player", color: 0x9b59b6, mentionable: false },
-  { name: "Developer", color: 0x5865f2, mentionable: false },
+  { name: "Stream Viewer", color: 0x9b59b6, mentionable: false },
+  { name: "Live Notifications", color: 0xe91e63, mentionable: true },
+  { name: "Gaming", color: 0x2ecc71, mentionable: false },
+  { name: "Development", color: 0x5865f2, mentionable: false },
+  { name: "Open Source", color: 0x3498db, mentionable: false },
+  { name: "Support Updates", color: 0x1abc9c, mentionable: true },
+  { name: "Contributor", color: 0xf1c40f, mentionable: false },
+  { name: "Support Helper", color: 0x00b0f4, mentionable: false },
   { name: "Moderator", color: 0xe74c3c, mentionable: false },
 ] as const
 
@@ -205,8 +208,8 @@ async function ensureTextChannel(name: string, parent: Channel, options: TextCha
   return created
 }
 
-async function ensureSupportChannel(parent: Channel): Promise<Channel> {
-  const name = "support-and-feedback"
+async function ensureProjectSupportChannel(parent: Channel): Promise<Channel> {
+  const name = "coa-ladder-support"
   const existing = channels.find((channel) => channel.name === name && channel.parent_id === parent.id)
   const communityEnabled = guild.features.includes("COMMUNITY")
 
@@ -216,9 +219,9 @@ async function ensureSupportChannel(parent: Channel): Promise<Channel> {
   }
 
   if (!communityEnabled) {
-    console.warn("  ! Community is disabled; creating support-and-feedback as a text channel instead of a forum")
+    console.warn("  ! Community is disabled; creating coa-ladder-support as a text channel instead of a forum")
     return ensureTextChannel(name, parent, {
-      topic: "Website questions, bug reports, incorrect ladder data and suggestions.",
+      topic: "Support for the CoA Arena Ladder website: questions, bugs, incorrect data and suggestions.",
       slowmode: 10,
     })
   }
@@ -229,7 +232,7 @@ async function ensureSupportChannel(parent: Channel): Promise<Channel> {
       name,
       type: CHANNEL_TYPE.forum,
       parent_id: parent.id,
-      topic: "Website questions, bug reports, incorrect ladder data and suggestions.",
+      topic: "Support for the CoA Arena Ladder website: questions, bugs, incorrect data and suggestions.",
       available_tags: [
         { name: "Bug", emoji_name: "🐛" },
         { name: "Incorrect data", emoji_name: "📊" },
@@ -248,30 +251,64 @@ async function ensureSupportChannel(parent: Channel): Promise<Channel> {
 }
 
 const info = await ensureCategory("START HERE")
-const arena = await ensureCategory("COA ARENA")
-const support = await ensureCategory("SUPPORT")
+const community = await ensureCategory("COMMUNITY")
+const gaming = await ensureCategory("GAMING")
+const development = await ensureCategory("DEVELOPMENT")
+const projects = await ensureCategory("PROJECTS & SUPPORT")
 const staff = await ensureCategory("STAFF", true)
 
 await ensureTextChannel("welcome-and-rules", info, {
-  topic: "Welcome, server rules and the official CoA Arena Ladder link.",
+  topic: "Welcome, community rules, useful links and where to start.",
   readOnly: true,
 })
 await ensureTextChannel("announcements", info, {
-  topic: "CoA Arena Ladder releases, updates and important notices.",
+  topic: "Stream announcements, community news and important project updates.",
   readOnly: true,
 })
-await ensureTextChannel("general", arena, { topic: "General Conquest of Azeroth community chat.", slowmode: 3 })
-await ensureTextChannel("ladder-discussion", arena, {
-  topic: "Discuss the 1v1, 2v2 and 3v3 ladders, ratings, classes and builds.",
+await ensureTextChannel("stream-schedule", info, {
+  topic: "Upcoming gaming and programming streams.",
+  readOnly: true,
+})
+await ensureTextChannel("general", community, { topic: "General community chat and introductions.", slowmode: 3 })
+await ensureTextChannel("stream-chat", community, {
+  topic: "Continue stream discussions, share moments and talk between broadcasts.",
   slowmode: 3,
 })
-await ensureTextChannel("looking-for-team", arena, {
-  topic: "Find arena partners. Include bracket, class/spec, rating and play time.",
+await ensureTextChannel("clips-and-creations", community, {
+  topic: "Share clips, screenshots, projects, art and other community creations.",
+  slowmode: 5,
+})
+await ensureTextChannel("interesting-finds", community, {
+  topic: "Share interesting articles, videos, podcasts, games, websites and open-source discoveries.",
+  slowmode: 30,
+})
+await ensureTextChannel("gaming-chat", gaming, {
+  topic: "Games from the streams, recommendations, builds and general gaming discussion.",
+  slowmode: 3,
+})
+await ensureTextChannel("looking-for-group", gaming, {
+  topic: "Find people to play with. Include the game, region and usual play time.",
   slowmode: 10,
 })
-await ensureSupportChannel(support)
+await ensureTextChannel("dev-chat", development, {
+  topic: "Programming, tools, architecture, learning and live-coding discussions.",
+  slowmode: 3,
+})
+await ensureTextChannel("dev-tools", development, {
+  topic: "A curated, read-only collection of useful development tools, libraries and resources.",
+  readOnly: true,
+})
+await ensureTextChannel("show-and-tell", development, {
+  topic: "Share what you are building, ask for feedback and celebrate progress.",
+  slowmode: 5,
+})
+await ensureTextChannel("open-source", projects, {
+  topic: "Open-source releases, contribution opportunities and discussions about current projects.",
+  slowmode: 3,
+})
+await ensureProjectSupportChannel(projects)
 await ensureTextChannel("staff-chat", staff, { topic: "Private server management discussion." })
 await ensureTextChannel("mod-log", staff, { topic: "Private moderation and bot audit log." })
 
 console.log("\nDone. No existing roles or channels were deleted.")
-console.log("Next: configure Onboarding/self-roles and point Dyno Action Log at #mod-log.")
+console.log("Next: configure Onboarding/self-roles, stream notifications, and Dyno Action Log at #mod-log.")
